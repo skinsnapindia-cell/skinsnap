@@ -14,7 +14,7 @@ const faqData = [
   },
   {
     q: "Do you offer wholesale?",
-    a: 'Yes — reach out at skinsnap.india@gmail.com with "Wholesale" in the subject and our team will share the catalog and terms.',
+    a: 'Yes — reach out at contact@skinsnap.beauty with "Wholesale" in the subject and our team will share the catalog and terms.',
   },
   {
     q: "Is SkinSnap suitable for sensitive skin?",
@@ -53,7 +53,8 @@ export default function ContactPage() {
         body: JSON.stringify({ name, email, phone, subject, message }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || "Could not send your message.");
+      if (!res.ok)
+        throw new Error(data?.error || "Could not send your message.");
       setStatus("sent");
       setName("");
       setEmail("");
@@ -162,15 +163,41 @@ export default function ContactPage() {
                     margin: "0 auto 20px",
                   }}
                 >
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5E7C4E" strokeWidth="2.4">
-                    <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#5E7C4E"
+                    strokeWidth="2.4"
+                  >
+                    <path
+                      d="M5 13l4 4L19 7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </div>
-                <h3 style={{ fontFamily: "'Instrument Serif',serif", fontWeight: 400, fontSize: 26, margin: "0 0 10px" }}>
+                <h3
+                  style={{
+                    fontFamily: "'Instrument Serif',serif",
+                    fontWeight: 400,
+                    fontSize: 26,
+                    margin: "0 0 10px",
+                  }}
+                >
                   Message sent — thank you!
                 </h3>
-                <p style={{ fontSize: 14.5, color: "#6B6357", lineHeight: 1.6, margin: 0 }}>
-                  We&apos;ve emailed you a confirmation and will reply within one business day.
+                <p
+                  style={{
+                    fontSize: 14.5,
+                    color: "#6B6357",
+                    lineHeight: 1.6,
+                    margin: 0,
+                  }}
+                >
+                  We&apos;ve emailed you a confirmation and will reply within
+                  one business day.
                 </p>
                 <button
                   onClick={() => setStatus("idle")}
@@ -244,7 +271,14 @@ export default function ContactPage() {
                 </div>
 
                 {status === "error" && (
-                  <div style={{ marginTop: 14, fontSize: 13.5, color: "#B4483F", lineHeight: 1.5 }}>
+                  <div
+                    style={{
+                      marginTop: 14,
+                      fontSize: 13.5,
+                      color: "#B4483F",
+                      lineHeight: 1.5,
+                    }}
+                  >
                     {errorMsg}
                   </div>
                 )}
@@ -268,13 +302,24 @@ export default function ContactPage() {
                     transition: "background 0.25s ease",
                   }}
                   onMouseEnter={(e) => {
-                    if (status !== "sending") e.currentTarget.style.background = "#A15E38";
+                    if (status !== "sending")
+                      e.currentTarget.style.background = "#A15E38";
                   }}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "#26221C")}
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "#26221C")
+                  }
                 >
                   {status === "sending" ? "Sending…" : "Send Message"}
                 </button>
-                <p style={{ fontSize: 11.5, color: "#9B8F7C", textAlign: "center", marginTop: 14, lineHeight: 1.5 }}>
+                <p
+                  style={{
+                    fontSize: 11.5,
+                    color: "#9B8F7C",
+                    textAlign: "center",
+                    marginTop: 14,
+                    lineHeight: 1.5,
+                  }}
+                >
                   We&apos;ll email you a thank-you confirmation right away.
                 </p>
               </form>
@@ -304,11 +349,7 @@ export default function ContactPage() {
               >
                 Business Info
               </div>
-              <InfoRow
-                icon="✉"
-                label="Email"
-                value="skinsnap.india@gmail.com"
-              />
+              <InfoRow icon="✉" label="Email" value="contact@skinsnap.beauty" />
               <InfoRow icon="☏" label="Phone" value="+91 9998746560" />
               <InfoRow
                 icon="⌖"
