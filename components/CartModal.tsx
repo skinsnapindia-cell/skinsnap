@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { formatINR } from "@/lib/format";
@@ -138,10 +139,11 @@ export default function CartModal({
                     borderBottom: "1px solid #EFE7D9",
                   }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={item.img}
                     alt={item.title}
+                    width={72}
+                    height={72}
                     style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 12, flexShrink: 0, background: "#F3ECDF" }}
                   />
                   <div style={{ flex: 1, minWidth: 0 }}>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
@@ -74,12 +75,12 @@ export default function ProductPouch({ product }: { product: Product }) {
             transform: "translateZ(30px)",
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={product.img}
             alt={isCombo ? "SkinSnap 4-Pack Face Pack Combo" : `${product.title} Face Pack`}
-            loading="lazy"
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            fill
+            sizes="(max-width: 700px) 92vw, 380px"
+            style={{ objectFit: "cover" }}
           />
           {isCombo && (
             <>

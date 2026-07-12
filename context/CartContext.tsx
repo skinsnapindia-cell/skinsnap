@@ -7,6 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import type { StaticImageData } from "next/image";
 import CartModal from "@/components/CartModal";
 import CheckoutModal from "@/components/CheckoutModal";
 import type { Product } from "@/lib/products";
@@ -15,7 +16,7 @@ export type CartItem = {
   slug: string;
   title: string;
   priceNum: number;
-  img: string;
+  img: StaticImageData;
   qty: number;
 };
 

@@ -1,6 +1,13 @@
+import type { StaticImageData } from "next/image";
+import imgCombo from "@/public/assets/pack-combo.webp";
+import imgMultaniMitti from "@/public/assets/pack-multani-mitti.webp";
+import imgOrangePeel from "@/public/assets/pack-orange-peel.webp";
+import imgDeTan from "@/public/assets/pack-de-tan.webp";
+import imgKoreanGlow from "@/public/assets/pack-korean-glow.webp";
+
 export type Product = {
   slug: string;
-  img: string;
+  img: StaticImageData;
   title: string;
   desc: string;
   price: string;
@@ -18,7 +25,7 @@ export type Product = {
 export const products: Product[] = [
   {
     slug: "combo-pack",
-    img: "/assets/pack-combo.webp",
+    img: imgCombo,
     title: "Combo Pack",
     desc: "4 freshly activated face packs for every skincare need at an unbeatable price.",
     price: "₹99",
@@ -45,7 +52,7 @@ export const products: Product[] = [
   },
   {
     slug: "multani-mitti",
-    img: "/assets/pack-multani-mitti.webp",
+    img: imgMultaniMitti,
     title: "Multani Mitti",
     desc: "Oil control, deep clean & detox with mineral-rich clay.",
     price: "₹29",
@@ -72,7 +79,7 @@ export const products: Product[] = [
   },
   {
     slug: "orange-peel",
-    img:'/assets/pack-orange-peel.webp',
+    img: imgOrangePeel,
     title: "Orange Peel",
     desc: "Tan removal & brightening for a natural, even glow.",
     price: "₹29",
@@ -99,7 +106,7 @@ export const products: Product[] = [
   },
   {
     slug: "de-tan",
-    img: "/assets/pack-de-tan.webp",
+    img: imgDeTan,
     title: "De-Tan",
     desc: "Turmeric & clay that lift tan and even skin tone.",
     price: "₹29",
@@ -126,7 +133,7 @@ export const products: Product[] = [
   },
   {
     slug: "korean-glow",
-    img: "/assets/pack-korean-glow.webp",
+    img: imgKoreanGlow,
     title: "Korean Glow",
     desc: "Rice, clay & oat for glass-skin softness.",
     price: "₹29",

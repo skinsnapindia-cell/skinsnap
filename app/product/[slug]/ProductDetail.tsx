@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
@@ -118,8 +119,7 @@ export default function ProductDetail({
             <div>
               <div ref={galleryRef} style={{ background: "#F3ECDF", borderRadius: 28, padding: 40, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 440 }}>
                 {view === "front" && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={product.img} alt={`${product.title} Face Pack`} style={{ width: "100%", height: "auto", borderRadius: 16, display: "block", filter: "drop-shadow(0 30px 40px rgba(120,80,60,0.18))" }} />
+                  <Image src={product.img} alt={`${product.title} Face Pack`} priority sizes="(max-width: 900px) 92vw, 640px" style={{ width: "100%", height: "auto", borderRadius: 16, display: "block", filter: "drop-shadow(0 30px 40px rgba(120,80,60,0.18))" }} />
                 )}
                 {view === "transparent" && (
                   <svg width="100%" viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg">
@@ -308,8 +308,7 @@ export default function ProductDetail({
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <div style={{ width: 44, height: 44, borderRadius: 12, background: "#F3ECDF", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={product.img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <Image src={product.img} alt="" width={44} height={44} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
             <div className="detail-bar-title">
               <div style={{ fontWeight: 700, fontSize: 15 }}>{product.title} Face Pack</div>
