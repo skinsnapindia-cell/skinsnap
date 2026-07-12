@@ -1,6 +1,6 @@
 import { INSTAGRAM_URL, WHATSAPP_PHONE } from "@/lib/social";
 import { SITE_URL } from "@/lib/site";
-import type { Product } from "@/lib/products";
+import { productDisplayName, type Product } from "@/lib/products";
 
 /**
  * Site-wide Open Graph image, exactly 1200×630. JPG rather than the source
@@ -33,7 +33,7 @@ export function productJsonLd(product: Product) {
   return {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: `${product.title} Face Pack`,
+    name: productDisplayName(product),
     image: [`${SITE_URL}${product.img.src}`],
     description: product.long,
     sku: product.slug,

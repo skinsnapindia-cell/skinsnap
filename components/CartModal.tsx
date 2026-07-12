@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { formatINR } from "@/lib/format";
+import { productDisplayName } from "@/lib/products";
 import { lockScroll, unlockScroll } from "@/lib/lenisControl";
 
 export default function CartModal({
@@ -149,7 +150,7 @@ export default function CartModal({
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
                       <div style={{ fontWeight: 700, fontSize: 15 }}>
-                        {item.title} Face Pack
+                        {productDisplayName(item)}
                       </div>
                       <button
                         aria-label={`Remove ${item.title}`}

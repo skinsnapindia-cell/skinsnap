@@ -289,6 +289,18 @@ svg text {
     padding-left: 22px !important;
     padding-right: 22px !important;
   }
+  /* blog product CTA card: image+text row, button drops to its own full-width line */
+  .product-cta {
+    flex-wrap: wrap;
+    gap: 14px !important;
+  }
+  .product-cta__btn {
+    width: 100%;
+    text-align: center;
+  }
+  .blog-card {
+    padding: 24px 20px !important;
+  }
   .grid-2,
   .grid-3,
   .grid-4 {

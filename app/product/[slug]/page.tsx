@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { products, getProduct } from "@/lib/products";
+import { products, getProduct, productDisplayName } from "@/lib/products";
 import { jsonLdString, productJsonLd } from "@/lib/seo";
 import ProductDetail from "./ProductDetail";
 
@@ -15,7 +15,7 @@ export function generateMetadata({
 }): Metadata {
   const product = getProduct(params.slug);
   if (!product) return {};
-  const title = `${product.title} Face Pack — ${product.price}`;
+  const title = `${productDisplayName(product)} — ${product.price}`;
   return {
     title,
     description: product.desc,
@@ -30,7 +30,7 @@ export function generateMetadata({
       images: [
         {
           url: product.img.src,
-          alt: `${product.title} Face Pack`,
+          alt: productDisplayName(product),
         },
       ],
     },

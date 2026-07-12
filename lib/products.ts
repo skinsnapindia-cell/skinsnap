@@ -22,6 +22,17 @@ export type Product = {
   ingredients: { name: string; body: string; bg: string; color: string }[];
 };
 
+/**
+ * TODO: visit again when adding products
+ * Customer-facing product name. Avoids the "Combo Pack Face Pack" artifact
+ * that blind `${title} Face Pack` templating produces for the combo.
+ */
+export function productDisplayName(p: Pick<Product, "slug" | "title">) {
+  return p.slug === "combo-pack"
+    ? "4-in-1 Face Pack Combo"
+    : `${p.title} Face Pack`;
+}
+
 export const products: Product[] = [
   {
     slug: "combo-pack",

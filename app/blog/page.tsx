@@ -90,6 +90,7 @@ export default function BlogIndexPage() {
             <Link
               key={post.slug}
               href={`/blog/${post.slug}`}
+              className="blog-card"
               style={{
                 display: "block",
                 background: "#FCFAF5",

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getProduct } from "@/lib/products";
+import { getProduct, productDisplayName } from "@/lib/products";
 
 /**
  * Compact product card used inside blog articles — links a mentioned
@@ -12,6 +12,7 @@ export default function ProductCta({ slug }: { slug: string }) {
   return (
     <Link
       href={`/product/${product.slug}`}
+      className="product-cta"
       style={{
         display: "flex",
         alignItems: "center",
@@ -37,7 +38,7 @@ export default function ProductCta({ slug }: { slug: string }) {
       >
         <Image
           src={product.img}
-          alt={`${product.title} Face Pack`}
+          alt={productDisplayName(product)}
           fill
           sizes="84px"
           style={{ objectFit: "cover" }}
@@ -51,13 +52,14 @@ export default function ProductCta({ slug }: { slug: string }) {
             color: "#26221C",
           }}
         >
-          {product.title} Face Pack
+          {productDisplayName(product)}
         </div>
         <div style={{ fontSize: 13, color: "#6B6357", marginTop: 4 }}>
           {product.desc}
         </div>
       </div>
       <div
+        className="product-cta__btn"
         style={{
           background: "#26221C",
           color: "#F6F1E9",
