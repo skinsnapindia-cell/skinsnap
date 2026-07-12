@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { useCart } from "@/context/CartContext";
 import { formatINR } from "@/lib/format";
 import { lockScroll, unlockScroll } from "@/lib/lenisControl";
@@ -92,8 +93,12 @@ export default function CheckoutModal({
   };
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: backdrop click-to-close is a convenience; Esc + close button cover keyboard users
     <div
-      onClick={onClose}
+      role="presentation"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
       style={{
         position: "fixed",
         inset: 0,
@@ -109,7 +114,6 @@ export default function CheckoutModal({
       }}
     >
       <div
-        onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         data-lenis-prevent
@@ -128,8 +132,21 @@ export default function CheckoutModal({
           position: "relative",
         }}
       >
-        <button aria-label="Close" onClick={onClose} style={closeBtn}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <button
+          type="button"
+          aria-label="Close"
+          onClick={onClose}
+          style={closeBtn}
+        >
+          <svg
+            aria-hidden="true"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          >
             <line x1="6" y1="6" x2="18" y2="18" strokeLinecap="round" />
             <line x1="18" y1="6" x2="6" y2="18" strokeLinecap="round" />
           </svg>
@@ -138,115 +155,305 @@ export default function CheckoutModal({
         {status === "done" ? (
           <div style={{ textAlign: "center", padding: "12px 4px 4px" }}>
             <div style={successCircle}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#5E7C4E" strokeWidth="2.4">
-                <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+              <svg
+                aria-hidden="true"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#5E7C4E"
+                strokeWidth="2.4"
+              >
+                <path
+                  d="M5 13l4 4L19 7"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </div>
-            <h3 style={{ fontFamily: "'Instrument Serif',serif", fontWeight: 400, fontSize: 32, margin: "0 0 12px" }}>
+            <h3
+              style={{
+                fontFamily: "'Instrument Serif',serif",
+                fontWeight: 400,
+                fontSize: 32,
+                margin: "0 0 12px",
+              }}
+            >
               Thank you, {name.split(" ")[0] || "friend"}!
             </h3>
-            <p style={{ fontSize: 15, color: "#6B6357", lineHeight: 1.6, margin: "0 0 6px" }}>
+            <p
+              style={{
+                fontSize: 15,
+                color: "#6B6357",
+                lineHeight: 1.6,
+                margin: "0 0 6px",
+              }}
+            >
               Your order for{" "}
               <strong>
                 {receiptCount} {receiptCount === 1 ? "pouch" : "pouches"}
               </strong>{" "}
               has been received.
             </p>
-            <p style={{ fontSize: 15, color: "#6B6357", lineHeight: 1.6, margin: 0 }}>
+            <p
+              style={{
+                fontSize: 15,
+                color: "#6B6357",
+                lineHeight: 1.6,
+                margin: 0,
+              }}
+            >
               A confirmation email is on its way to{" "}
               <strong>{receiptEmail}</strong>.
             </p>
             <button
+              type="button"
               onClick={onClose}
               style={{ ...primaryBtn, marginTop: 26 }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#A15E38")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "#26221C")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "#A15E38")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "#26221C")
+              }
             >
               Keep Shopping
             </button>
           </div>
         ) : items.length === 0 ? (
           <div style={{ textAlign: "center", padding: "12px 4px" }}>
-            <h3 style={{ fontFamily: "'Instrument Serif',serif", fontWeight: 400, fontSize: 26, margin: "0 0 10px" }}>
+            <h3
+              style={{
+                fontFamily: "'Instrument Serif',serif",
+                fontWeight: 400,
+                fontSize: 26,
+                margin: "0 0 10px",
+              }}
+            >
               Your cart is empty
             </h3>
             <p style={{ fontSize: 14, color: "#6B6357", margin: "0 0 22px" }}>
               Add a ritual before checking out.
             </p>
             <button
+              type="button"
               onClick={onClose}
               style={primaryBtn}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#A15E38")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "#26221C")}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "#A15E38")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "#26221C")
+              }
             >
               Continue Shopping
             </button>
           </div>
         ) : (
           <>
-            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", color: "#A15E38" }}>
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: "0.24em",
+                textTransform: "uppercase",
+                color: "#A15E38",
+              }}
+            >
               Checkout
             </div>
-            <h3 style={{ fontFamily: "'Instrument Serif',serif", fontWeight: 400, fontSize: 28, margin: "10px 0 20px" }}>
+            <h3
+              style={{
+                fontFamily: "'Instrument Serif',serif",
+                fontWeight: 400,
+                fontSize: 28,
+                margin: "10px 0 20px",
+              }}
+            >
               Complete your order
             </h3>
 
             {/* order summary */}
-            <div style={{ background: "#F3ECDF", borderRadius: 16, padding: "14px 16px", marginBottom: 22 }}>
+            <div
+              style={{
+                background: "#F3ECDF",
+                borderRadius: 16,
+                padding: "14px 16px",
+                marginBottom: 22,
+              }}
+            >
               {items.map((i) => (
-                <div key={i.slug} style={{ display: "flex", justifyContent: "space-between", gap: 10, fontSize: 14, padding: "5px 0" }}>
+                <div
+                  key={i.slug}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 10,
+                    fontSize: 14,
+                    padding: "5px 0",
+                  }}
+                >
                   <span style={{ color: "#4A4238" }}>
                     {i.qty} × {i.title}
                   </span>
-                  <span style={{ fontWeight: 600 }}>{formatINR(i.priceNum * i.qty)}</span>
+                  <span style={{ fontWeight: 600 }}>
+                    {formatINR(i.priceNum * i.qty)}
+                  </span>
                 </div>
               ))}
-              <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #E1D6C4", marginTop: 8, paddingTop: 10, fontWeight: 700 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  borderTop: "1px solid #E1D6C4",
+                  marginTop: 8,
+                  paddingTop: 10,
+                  fontWeight: 700,
+                }}
+              >
                 <span>Total</span>
                 <span>{formatINR(subtotal)}</span>
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: -10, marginBottom: 14 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: -10,
+                marginBottom: 14,
+              }}
+            >
               <button
+                type="button"
                 onClick={openCart}
-                style={{ background: "none", border: "none", cursor: "pointer", color: "#A15E38", fontSize: 13, fontFamily: "'Manrope',sans-serif", textDecoration: "underline", padding: 0 }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#A15E38",
+                  fontSize: 13,
+                  fontFamily: "'Manrope',sans-serif",
+                  textDecoration: "underline",
+                  padding: 0,
+                }}
               >
                 Edit cart
               </button>
             </div>
 
             <form onSubmit={submit}>
-              <label style={labelStyle}>Full Name</label>
-              <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" style={inputStyle} />
-
-              <div style={twoCol}>
-                <div>
-                  <label style={{ ...labelStyle, marginTop: 16 }}>Email Address</label>
-                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" style={inputStyle} />
-                </div>
-                <div>
-                  <label style={{ ...labelStyle, marginTop: 16 }}>Phone</label>
-                  <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 9xxxxxxxxx" style={inputStyle} />
-                </div>
-              </div>
-
-              <label style={{ ...labelStyle, marginTop: 16 }}>Shipping Address</label>
-              <input type="text" required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="House no., street, area" style={inputStyle} />
-
-              <div style={twoCol}>
-                <div>
-                  <label style={{ ...labelStyle, marginTop: 16 }}>City</label>
-                  <input type="text" required value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" style={inputStyle} />
-                </div>
-                <div>
-                  <label style={{ ...labelStyle, marginTop: 16 }}>State</label>
-                  <input type="text" required value={stateRegion} onChange={(e) => setStateRegion(e.target.value)} placeholder="State" style={inputStyle} />
-                </div>
-              </div>
-
-              <label style={{ ...labelStyle, marginTop: 16 }}>PIN Code</label>
+              <label htmlFor="checkout-name" style={labelStyle}>
+                Full Name
+              </label>
               <input
+                id="checkout-name"
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                style={inputStyle}
+              />
+
+              <div style={twoCol}>
+                <div>
+                  <label
+                    htmlFor="checkout-email"
+                    style={{ ...labelStyle, marginTop: 16 }}
+                  >
+                    Email Address
+                  </label>
+                  <input
+                    id="checkout-email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@email.com"
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="checkout-phone"
+                    style={{ ...labelStyle, marginTop: 16 }}
+                  >
+                    Phone
+                  </label>
+                  <input
+                    id="checkout-phone"
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+91 9xxxxxxxxx"
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+
+              <label
+                htmlFor="checkout-address"
+                style={{ ...labelStyle, marginTop: 16 }}
+              >
+                Shipping Address
+              </label>
+              <input
+                id="checkout-address"
+                type="text"
+                required
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="House no., street, area"
+                style={inputStyle}
+              />
+
+              <div style={twoCol}>
+                <div>
+                  <label
+                    htmlFor="checkout-city"
+                    style={{ ...labelStyle, marginTop: 16 }}
+                  >
+                    City
+                  </label>
+                  <input
+                    id="checkout-city"
+                    type="text"
+                    required
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="City"
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="checkout-state"
+                    style={{ ...labelStyle, marginTop: 16 }}
+                  >
+                    State
+                  </label>
+                  <input
+                    id="checkout-state"
+                    type="text"
+                    required
+                    value={stateRegion}
+                    onChange={(e) => setStateRegion(e.target.value)}
+                    placeholder="State"
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+
+              <label
+                htmlFor="checkout-pincode"
+                style={{ ...labelStyle, marginTop: 16 }}
+              >
+                PIN Code
+              </label>
+              <input
+                id="checkout-pincode"
                 type="text"
                 required
                 inputMode="numeric"
@@ -259,7 +466,7 @@ export default function CheckoutModal({
               />
 
               {/* Payment method */}
-              <label style={{ ...labelStyle, marginTop: 20 }}>Payment Method</label>
+              <p style={{ ...labelStyle, marginTop: 20 }}>Payment Method</p>
               <label style={codOption}>
                 <input
                   type="radio"
@@ -267,16 +474,34 @@ export default function CheckoutModal({
                   value="cod"
                   checked={payment === "cod"}
                   onChange={() => setPayment("cod")}
-                  style={{ accentColor: "#A15E38", width: 18, height: 18, margin: 0 }}
+                  style={{
+                    accentColor: "#A15E38",
+                    width: 18,
+                    height: 18,
+                    margin: 0,
+                  }}
                 />
                 <span style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ fontWeight: 700, fontSize: 14, color: "#26221C" }}>Cash on Delivery (COD)</span>
-                  <span style={{ fontSize: 12.5, color: "#6B6357" }}>Pay in cash when your order arrives.</span>
+                  <span
+                    style={{ fontWeight: 700, fontSize: 14, color: "#26221C" }}
+                  >
+                    Cash on Delivery (COD)
+                  </span>
+                  <span style={{ fontSize: 12.5, color: "#6B6357" }}>
+                    Pay in cash when your order arrives.
+                  </span>
                 </span>
               </label>
 
               {status === "error" && (
-                <div style={{ marginTop: 14, fontSize: 13, color: "#B4483F", lineHeight: 1.5 }}>
+                <div
+                  style={{
+                    marginTop: 14,
+                    fontSize: 13,
+                    color: "#B4483F",
+                    lineHeight: 1.5,
+                  }}
+                >
                   {errorMsg}
                 </div>
               )}
@@ -284,16 +509,35 @@ export default function CheckoutModal({
               <button
                 type="submit"
                 disabled={status === "sending"}
-                style={{ ...primaryBtn, marginTop: 22, opacity: status === "sending" ? 0.7 : 1, cursor: status === "sending" ? "default" : "pointer" }}
-                onMouseEnter={(e) => {
-                  if (status !== "sending") e.currentTarget.style.background = "#A15E38";
+                style={{
+                  ...primaryBtn,
+                  marginTop: 22,
+                  opacity: status === "sending" ? 0.7 : 1,
+                  cursor: status === "sending" ? "default" : "pointer",
                 }}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "#26221C")}
+                onMouseEnter={(e) => {
+                  if (status !== "sending")
+                    e.currentTarget.style.background = "#A15E38";
+                }}
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "#26221C")
+                }
               >
-                {status === "sending" ? "Placing order…" : `Place COD Order · ${formatINR(subtotal)}`}
+                {status === "sending"
+                  ? "Placing order…"
+                  : `Place COD Order · ${formatINR(subtotal)}`}
               </button>
-              <p style={{ fontSize: 11.5, color: "#9B8F7C", textAlign: "center", marginTop: 14, lineHeight: 1.5 }}>
-                We&apos;ll email your order confirmation. Pay in cash on delivery.
+              <p
+                style={{
+                  fontSize: 11.5,
+                  color: "#9B8F7C",
+                  textAlign: "center",
+                  marginTop: 14,
+                  lineHeight: 1.5,
+                }}
+              >
+                We&apos;ll email your order confirmation. Pay in cash on
+                delivery.
               </p>
             </form>
           </>

@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import Lenis from "lenis";
+
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Lenis from "lenis";
+
 import { registerLenis } from "@/lib/lenisControl";
 
 /**
@@ -19,7 +21,7 @@ export default function SmoothScroll({
   useEffect(() => {
     if (typeof window === "undefined") return;
     const reduce = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
+      "(prefers-reduced-motion: reduce)",
     ).matches;
     if (reduce) return;
 

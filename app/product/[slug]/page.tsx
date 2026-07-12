@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
-import { products, getProduct } from "@/lib/products";
+
+import { getProduct, products } from "@/lib/products";
+
 import ProductDetail from "./ProductDetail";
 
 export function generateStaticParams() {

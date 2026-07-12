@@ -56,7 +56,9 @@ textarea::placeholder {
   filter: blur(15px);
   opacity: 0.5;
   z-index: 0;
-  animation: combo-gradient 6s linear infinite, combo-pulse 3.2s ease-in-out infinite;
+  animation:
+    combo-gradient 6s linear infinite,
+    combo-pulse 3.2s ease-in-out infinite;
 }
 .combo-card {
   position: relative;

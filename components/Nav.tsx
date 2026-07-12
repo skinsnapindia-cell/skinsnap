@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+
 import { useCart } from "@/context/CartContext";
 import { lockScroll, unlockScroll } from "@/lib/lenisControl";
 
@@ -40,139 +41,159 @@ export default function Nav({ active }: { active: Active }) {
 
   return (
     <>
-    {/* PROMO BANNER — sits above the nav on every page */}
-    <Link
-      href="/product/combo-pack"
-      aria-label="Offer: 4-Pack Combo for just ₹99"
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1001,
-        height: BANNER_H,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 8,
-        background: "linear-gradient(90deg,#A15E38 0%,#B97C79 100%)",
-        color: "#F6F1E9",
-        textDecoration: "none",
-        fontSize: "clamp(11px,3vw,13.5px)",
-        fontWeight: 600,
-        letterSpacing: "0.01em",
-        padding: "0 16px",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-      }}
-    >
-      <span aria-hidden="true">🎁</span>
-      <span>
-        4-Pack Combo Offer — all 4 rituals for just{" "}
-        <strong style={{ fontWeight: 800, color: "#FFF3E4" }}>₹99</strong>
-      </span>
-      <span aria-hidden="true" style={{ fontWeight: 800 }}>
-        Shop&nbsp;→
-      </span>
-    </Link>
-
-    <nav
-      className="nav-pad"
-      style={{
-        position: "fixed",
-        top: BANNER_H,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "20px 48px",
-        transition: "background 0.4s ease, box-shadow 0.4s ease",
-        background: scrolled ? "rgba(246,241,233,0.82)" : "rgba(246,241,233,0)",
-        boxShadow: scrolled ? "0 1px 0 rgba(38,34,28,0.08)" : "none",
-        backdropFilter: "blur(14px)",
-        WebkitBackdropFilter: "blur(14px)",
-      }}
-    >
+      {/* PROMO BANNER — sits above the nav on every page */}
       <Link
-        href="/"
+        href="/product/combo-pack"
+        aria-label="Offer: 4-Pack Combo for just ₹99"
         style={{
-          fontFamily: "'Instrument Serif',serif",
-          fontSize: 26,
-          letterSpacing: "0.04em",
-          color: "#26221C",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1001,
+          height: BANNER_H,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 8,
+          background: "linear-gradient(90deg,#A15E38 0%,#B97C79 100%)",
+          color: "#F6F1E9",
           textDecoration: "none",
+          fontSize: "clamp(11px,3vw,13.5px)",
+          fontWeight: 600,
+          letterSpacing: "0.01em",
+          padding: "0 16px",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
         }}
       >
-        SKINSNAP
+        <span aria-hidden="true">🎁</span>
+        <span>
+          4-Pack Combo Offer — all 4 rituals for just{" "}
+          <strong style={{ fontWeight: 800, color: "#FFF3E4" }}>₹99</strong>
+        </span>
+        <span aria-hidden="true" style={{ fontWeight: 800 }}>
+          Shop&nbsp;→
+        </span>
       </Link>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 38 }}>
-        <div className="nav-links" style={{ alignItems: "center", gap: 32 }}>
-          {links.map((l) => (
-            <Link
-              key={l.key}
-              href={l.href}
-              style={{
-                fontSize: 14,
-                fontWeight: 600,
-                letterSpacing: "0.02em",
-                color: color(l.key),
-                textDecoration: "none",
-              }}
-            >
-              {l.label}
-            </Link>
-          ))}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <button
-            aria-label={`Cart, ${cartCount} items`}
-            onClick={openCart}
-            style={{ ...iconBtn, position: "relative" }}
-          >
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M6 8h12l-1 12H7L6 8Z" strokeLinejoin="round" />
-              <path d="M9 8a3 3 0 0 1 6 0" strokeLinecap="round" />
-            </svg>
-            {cartCount > 0 && (
-              <span
+      <nav
+        className="nav-pad"
+        style={{
+          position: "fixed",
+          top: BANNER_H,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "20px 48px",
+          transition: "background 0.4s ease, box-shadow 0.4s ease",
+          background: scrolled
+            ? "rgba(246,241,233,0.82)"
+            : "rgba(246,241,233,0)",
+          boxShadow: scrolled ? "0 1px 0 rgba(38,34,28,0.08)" : "none",
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+        }}
+      >
+        <Link
+          href="/"
+          style={{
+            fontFamily: "'Instrument Serif',serif",
+            fontSize: 26,
+            letterSpacing: "0.04em",
+            color: "#26221C",
+            textDecoration: "none",
+          }}
+        >
+          SKINSNAP
+        </Link>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 38 }}>
+          <div className="nav-links" style={{ alignItems: "center", gap: 32 }}>
+            {links.map((l) => (
+              <Link
+                key={l.key}
+                href={l.href}
                 style={{
-                  position: "absolute",
-                  top: -4,
-                  right: -6,
-                  background: "#B97C79",
-                  color: "#fff",
-                  fontSize: 9,
-                  fontWeight: 700,
-                  minWidth: 15,
-                  height: 15,
-                  padding: "0 3px",
-                  borderRadius: 999,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  letterSpacing: "0.02em",
+                  color: color(l.key),
+                  textDecoration: "none",
                 }}
               >
-                {cartCount}
-              </span>
-            )}
-          </button>
-          <button
-            aria-label="Menu"
-            className="nav-burger"
-            onClick={() => setMenuOpen(true)}
-            style={burgerBtn}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <line x1="4" y1="8" x2="20" y2="8" strokeLinecap="round" />
-              <line x1="4" y1="16" x2="20" y2="16" strokeLinecap="round" />
-            </svg>
-          </button>
+                {l.label}
+              </Link>
+            ))}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            <button
+              type="button"
+              aria-label={`Cart, ${cartCount} items`}
+              onClick={openCart}
+              style={{ ...iconBtn, position: "relative" }}
+            >
+              <svg
+                aria-hidden="true"
+                width="19"
+                height="19"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+              >
+                <path d="M6 8h12l-1 12H7L6 8Z" strokeLinejoin="round" />
+                <path d="M9 8a3 3 0 0 1 6 0" strokeLinecap="round" />
+              </svg>
+              {cartCount > 0 && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: -4,
+                    right: -6,
+                    background: "#B97C79",
+                    color: "#fff",
+                    fontSize: 9,
+                    fontWeight: 700,
+                    minWidth: 15,
+                    height: 15,
+                    padding: "0 3px",
+                    borderRadius: 999,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {cartCount}
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              aria-label="Menu"
+              className="nav-burger"
+              onClick={() => setMenuOpen(true)}
+              style={burgerBtn}
+            >
+              <svg
+                aria-hidden="true"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+              >
+                <line x1="4" y1="8" x2="20" y2="8" strokeLinecap="round" />
+                <line x1="4" y1="16" x2="20" y2="16" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
 
       {/* Full-screen mobile menu — rendered OUTSIDE <nav> so its
           position:fixed resolves against the viewport, not the
@@ -193,6 +214,7 @@ export default function Nav({ active }: { active: Active }) {
           }}
         >
           <button
+            type="button"
             aria-label="Close"
             onClick={() => setMenuOpen(false)}
             style={{
@@ -205,7 +227,15 @@ export default function Nav({ active }: { active: Active }) {
               color: "#26221C",
             }}
           >
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <svg
+              aria-hidden="true"
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            >
               <line x1="6" y1="6" x2="18" y2="18" strokeLinecap="round" />
               <line x1="18" y1="6" x2="6" y2="18" strokeLinecap="round" />
             </svg>

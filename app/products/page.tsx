@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import Nav from "@/components/Nav";
+
 import Footer from "@/components/Footer";
+import Nav from "@/components/Nav";
 import ProductPouch from "@/components/ProductPouch";
 import { products } from "@/lib/products";
 import { useReveals } from "@/lib/useReveals";
@@ -76,7 +77,7 @@ export default function ProductsPage() {
           {filters.map((f) => {
             const on = f === active;
             return (
-              <button
+              <button type="button"
                 key={f}
                 onClick={() => setActive(f)}
                 style={{

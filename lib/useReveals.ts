@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -15,7 +16,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
  */
 export function useReveals(
   scopeRef: React.RefObject<HTMLElement>,
-  options: { hero?: boolean } = {}
+  options: { hero?: boolean } = {},
 ) {
   const animateHero = options.hero !== false;
 
@@ -23,7 +24,9 @@ export function useReveals(
     const scope = scopeRef.current;
     if (!scope || typeof window === "undefined") return;
 
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     if (reduce) return;
 
     gsap.registerPlugin(ScrollTrigger);

@@ -7,6 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
+
 import CartModal from "@/components/CartModal";
 import CheckoutModal from "@/components/CheckoutModal";
 import type { Product } from "@/lib/products";
@@ -45,7 +46,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const found = prev.find((i) => i.slug === product.slug);
       if (found) {
         return prev.map((i) =>
-          i.slug === product.slug ? { ...i, qty: i.qty + qty } : i
+          i.slug === product.slug ? { ...i, qty: i.qty + qty } : i,
         );
       }
       return [
@@ -67,7 +68,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setCheckoutOpen(false);
       setCartOpen(true);
     },
-    [mergeAdd]
+    [mergeAdd],
   );
 
   const buyNow = useCallback(
@@ -76,7 +77,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setCartOpen(false);
       setCheckoutOpen(true);
     },
-    [mergeAdd]
+    [mergeAdd],
   );
 
   const removeItem = useCallback((slug: string) => {
@@ -87,7 +88,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((prev) =>
       prev
         .map((i) => (i.slug === slug ? { ...i, qty } : i))
-        .filter((i) => i.qty > 0)
+        .filter((i) => i.qty > 0),
     );
   }, []);
 
@@ -104,11 +105,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const cartCount = useMemo(
     () => items.reduce((s, i) => s + i.qty, 0),
-    [items]
+    [items],
   );
   const subtotal = useMemo(
     () => items.reduce((s, i) => s + i.qty * i.priceNum, 0),
-    [items]
+    [items],
   );
 
   const value = useMemo(
@@ -125,7 +126,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       closeCart,
       openCheckout,
     }),
-    [items, cartCount, subtotal, addItem, buyNow, removeItem, setQty, clearCart, openCart, closeCart, openCheckout]
+    [
+      items,
+      cartCount,
+      subtotal,
+      addItem,
+      buyNow,
+      removeItem,
+      setQty,
+      clearCart,
+      openCart,
+      closeCart,
+      openCheckout,
+    ],
   );
 
   return (
