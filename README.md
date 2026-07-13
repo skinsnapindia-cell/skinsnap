@@ -16,6 +16,7 @@ the **Resend API**, and then shows a thank-you message confirming the order.
   toolkit from the prototype (hero petal drift, mouse parallax, scroll reveals,
   the pinned pouch-activation timeline, 3D card tilt, sticky buy bar)
 - **Instrument Serif + Manrope** (Google Fonts)
+- **Google Analytics 4** page-view tracking via `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 - **Resend** for the confirmation email
 
 ## Pages
@@ -46,6 +47,7 @@ npm install
 # configure Resend
 cp .env.local.example .env.local
 # then edit .env.local and set RESEND_API_KEY=re_xxxxx
+# optionally set NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 
 npm run dev        # http://localhost:3000
 ```
@@ -60,6 +62,13 @@ npm run dev        # http://localhost:3000
 
 Without a key, the checkout still runs and returns a clear "email service not
 configured" message instead of silently failing.
+
+### Google Analytics setup
+
+1. Create a GA4 property and copy the measurement ID, which starts with `G-`.
+2. Set `NEXT_PUBLIC_GA_MEASUREMENT_ID` in `.env.local`.
+3. Analytics loads only when that variable is present, so local development can
+  stay untracked unless you opt in.
 
 ## Production build
 
