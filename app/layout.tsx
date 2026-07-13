@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Manrope, Instrument_Serif } from "next/font/google";
+import Script from "next/script";
+import { Suspense } from "react";
 import "./globals.css";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import SmoothScroll from "@/components/SmoothScroll";
 import { CartProvider } from "@/context/CartContext";
 import { jsonLdString, OG_DEFAULT_IMAGE, organizationJsonLd } from "@/lib/seo";
@@ -17,6 +20,8 @@ const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   variable: "--font-instrument-serif",
 });
+
+const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -70,6 +75,27 @@ export default function RootLayout({
             __html: jsonLdString(organizationJsonLd()),
           }}
         />
+        {gaMeasurementId ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {
+                `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaMeasurementId}', { send_page_view: false });
+                `
+              }
+            </Script>
+            <Suspense fallback={null}>
+              <GoogleAnalytics measurementId={gaMeasurementId} />
+            </Suspense>
+          </>
+        ) : null}
         <SmoothScroll>
           <CartProvider>{children}</CartProvider>
         </SmoothScroll>
