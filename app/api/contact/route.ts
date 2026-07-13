@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-
 import { Resend } from "resend";
 
 /**
@@ -30,7 +29,7 @@ export async function POST(req: Request) {
         error:
           "Email service not configured. Add RESEND_API_KEY to .env.local and restart the server.",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 
@@ -44,19 +43,15 @@ export async function POST(req: Request) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json(
-      { error: "Invalid request body." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
   const { name, email, phone, subject, message } = body;
-  const emailOk =
-    typeof email === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const emailOk = typeof email === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   if (!emailOk || !name || !message) {
     return NextResponse.json(
       { error: "Name, a valid email, and a message are required." },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -101,14 +96,14 @@ export async function POST(req: Request) {
     if (error) {
       return NextResponse.json(
         { error: error.message || "Email provider rejected the request." },
-        { status: 502 },
+        { status: 502 }
       );
     }
     return NextResponse.json({ ok: true, id: data?.id });
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to send email." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

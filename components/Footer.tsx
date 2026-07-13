@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-
 import { InstagramIcon, WhatsappIcon } from "@/components/SocialIcons";
 import { INSTAGRAM_URL, WHATSAPP_URL } from "@/lib/social";
 
@@ -26,55 +25,20 @@ export default function Footer() {
         }}
       >
         <div>
-          <div
-            style={{
-              fontFamily: "'Instrument Serif',serif",
-              fontSize: 34,
-              letterSpacing: "0.03em",
-            }}
-          >
+          <div style={{ fontFamily: "'Instrument Serif',serif", fontSize: 34, letterSpacing: "0.03em" }}>
             SKINSNAP
           </div>
-          <div
-            style={{
-              fontFamily: "'Instrument Serif',serif",
-              fontStyle: "italic",
-              fontSize: 18,
-              color: "#E8CBB2",
-              marginTop: 10,
-            }}
-          >
+          <div style={{ fontFamily: "'Instrument Serif',serif", fontStyle: "italic", fontSize: 18, color: "#E8CBB2", marginTop: 10 }}>
             Fresh Clay. Zero Mess.
           </div>
-          <div
-            style={{
-              fontSize: 13,
-              color: "#9B927F",
-              marginTop: 16,
-              maxWidth: 280,
-              lineHeight: 1.6,
-            }}
-          >
-            Freshly activated natural face packs, engineered for modern
-            skincare.
+          <div style={{ fontSize: 13, color: "#9B927F", marginTop: 16, maxWidth: 280, lineHeight: 1.6 }}>
+            Freshly activated natural face packs, engineered for modern skincare.
           </div>
           <div style={{ display: "flex", gap: 14, marginTop: 28 }}>
-            <a
-              href={INSTAGRAM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Instagram"
-              style={socialStyle}
-            >
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Instagram" style={socialStyle}>
               <InstagramIcon size={17} />
             </a>
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="WhatsApp"
-              style={socialStyle}
-            >
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" style={socialStyle}>
               <WhatsappIcon size={17} />
             </a>
           </div>
@@ -83,15 +47,9 @@ export default function Footer() {
         <div>
           <div style={labelStyle}>Quick Links</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <Link href="/products" style={linkStyle}>
-              Products
-            </Link>
-            <Link href="/how-it-works" style={linkStyle}>
-              How It Works
-            </Link>
-            <Link href="/contact" style={linkStyle}>
-              Contact
-            </Link>
+            <Link href="/products" style={linkStyle}>Products</Link>
+            <Link href="/how-it-works" style={linkStyle}>How It Works</Link>
+            <Link href="/contact" style={linkStyle}>Contact</Link>
           </div>
         </div>
       </div>
@@ -109,12 +67,8 @@ export default function Footer() {
           gap: 12,
         }}
       >
-        <div style={{ fontSize: 12, color: "#6B6357" }}>
-          © 2026 SkinSnap. All rights reserved.
-        </div>
-        <div style={{ fontSize: 12, color: "#6B6357" }}>
-          Freshly Activated. Naturally Beautiful.
-        </div>
+        <div style={{ fontSize: 12, color: "#6B6357" }}>© 2026 SkinSnap. All rights reserved.</div>
+        <div style={{ fontSize: 12, color: "#6B6357" }}>Freshly Activated. Naturally Beautiful.</div>
       </div>
     </footer>
   );

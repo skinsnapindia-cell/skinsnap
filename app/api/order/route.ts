@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-
 import { Resend } from "resend";
 
 /**
@@ -17,12 +16,7 @@ import { Resend } from "resend";
 
 export const runtime = "nodejs";
 
-type OrderItem = {
-  title: string;
-  qty: number;
-  priceEach: string;
-  lineTotal: string;
-};
+type OrderItem = { title: string; qty: number; priceEach: string; lineTotal: string };
 
 function escapeHtml(s: string) {
   return String(s)
@@ -40,16 +34,11 @@ export async function POST(req: Request) {
         error:
           "Email service not configured. Add RESEND_API_KEY to .env.local and restart the server.",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 
-  type Address = {
-    line?: string;
-    city?: string;
-    state?: string;
-    pincode?: string;
-  };
+  type Address = { line?: string; city?: string; state?: string; pincode?: string };
   let body: {
     name?: string;
     email?: string;
@@ -62,15 +51,11 @@ export async function POST(req: Request) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json(
-      { error: "Invalid request body." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
   const { name, email, phone, address, payment, items, total } = body;
-  const emailOk =
-    typeof email === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const emailOk = typeof email === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const addr = address || {};
   const addressOk = !!(addr.line && addr.city && addr.state && addr.pincode);
   if (!emailOk || !Array.isArray(items) || items.length === 0 || !addressOk) {
@@ -79,7 +64,7 @@ export async function POST(req: Request) {
         error:
           "A valid email, complete shipping address, and at least one product are required.",
       },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -95,7 +80,7 @@ export async function POST(req: Request) {
       phone ? `Phone: ${phone}` : "",
     ]
       .filter(Boolean)
-      .join("\n"),
+      .join("\n")
   ).replace(/\n/g, "<br>");
   const paymentLabel = escapeHtml(payment || "Cash on Delivery");
 
@@ -105,7 +90,7 @@ export async function POST(req: Request) {
           <tr>
             <td style="padding:6px 0;color:#26221C;">${Number(it.qty) || 1} × ${escapeHtml(it.title)} Face Pack</td>
             <td style="padding:6px 0;text-align:right;color:#26221C;">${escapeHtml(it.lineTotal || "")}</td>
-          </tr>`,
+          </tr>`
     )
     .join("");
 
@@ -156,14 +141,14 @@ export async function POST(req: Request) {
     if (error) {
       return NextResponse.json(
         { error: error.message || "Email provider rejected the request." },
-        { status: 502 },
+        { status: 502 }
       );
     }
     return NextResponse.json({ ok: true, id: data?.id });
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to send email." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

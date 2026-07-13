@@ -1,14 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -16,9 +9,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 // SSR so React doesn't warn.
 const useIsoLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
-
-import Footer from "@/components/Footer";
 import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 import ProductPouch from "@/components/ProductPouch";
 import { products } from "@/lib/products";
 import { useReveals } from "@/lib/useReveals";
@@ -34,13 +26,13 @@ export default function HomePage() {
 
   useReveals(scopeRef, { hero: false });
 
-  const restart = useCallback(() => {
+  const restart = () => {
     if (autoRef.current) clearInterval(autoRef.current);
     autoRef.current = setInterval(
       () => setSlide((s) => (s + 1) % products.length),
       3500,
     );
-  }, []);
+  };
 
   // autoplay slider
   useEffect(() => {
@@ -48,7 +40,7 @@ export default function HomePage() {
     return () => {
       if (autoRef.current) clearInterval(autoRef.current);
     };
-  }, [restart]);
+  }, []);
 
   // Hero intro — runs before paint so the copy never flashes in fully-opaque
   // and then jumps to the animation's start state.
@@ -140,9 +132,7 @@ export default function HomePage() {
         cleanups.push(() => hero.removeEventListener("mousemove", onMove));
       }
 
-      return () => {
-        for (const c of cleanups) c();
-      };
+      return () => cleanups.forEach((c) => c());
     }, scopeRef);
 
     return () => ctx.revert();
@@ -294,7 +284,6 @@ export default function HomePage() {
           >
             {products.map((p, i) => (
               <button
-                type="button"
                 key={p.slug}
                 aria-label={`Go to slide ${i + 1}`}
                 onClick={() => {
@@ -452,7 +441,6 @@ export default function HomePage() {
             }}
           >
             <svg
-              aria-hidden="true"
               width="100%"
               viewBox="0 0 420 260"
               xmlns="http://www.w3.org/2000/svg"

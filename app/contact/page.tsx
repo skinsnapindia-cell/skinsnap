@@ -1,9 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-
-import Footer from "@/components/Footer";
 import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 import { InstagramIcon, WhatsappIcon } from "@/components/SocialIcons";
 import { INSTAGRAM_URL, WHATSAPP_URL } from "@/lib/social";
 import { useReveals } from "@/lib/useReveals";
@@ -165,7 +164,6 @@ export default function ContactPage() {
                   }}
                 >
                   <svg
-                    aria-hidden="true"
                     width="28"
                     height="28"
                     viewBox="0 0 24 24"
@@ -202,7 +200,6 @@ export default function ContactPage() {
                   one business day.
                 </p>
                 <button
-                  type="button"
                   onClick={() => setStatus("idle")}
                   style={{
                     marginTop: 22,
@@ -262,11 +259,8 @@ export default function ContactPage() {
                     marginTop: 18,
                   }}
                 >
-                  <label htmlFor="contact-message" style={fieldLabel}>
-                    Message
-                  </label>
+                  <label style={fieldLabel}>Message</label>
                   <textarea
-                    id="contact-message"
                     rows={5}
                     required
                     placeholder="Tell us more…"
@@ -397,7 +391,6 @@ export default function ContactPage() {
               }}
             >
               <svg
-                aria-hidden="true"
                 width="100%"
                 height="100%"
                 viewBox="0 0 400 220"
@@ -475,7 +468,6 @@ export default function ContactPage() {
               return (
                 <div key={f.q} style={{ borderBottom: "1px solid #DAD0C0" }}>
                   <button
-                    type="button"
                     onClick={() => setFaqOpen(open ? -1 : i)}
                     style={{
                       width: "100%",
@@ -558,14 +550,10 @@ function Field({
   value: string;
   onChange: (v: string) => void;
 }) {
-  const fieldId = `contact-${label.toLowerCase().replace(/\s+/g, "-")}`;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      <label htmlFor={fieldId} style={fieldLabel}>
-        {label}
-      </label>
+      <label style={fieldLabel}>{label}</label>
       <input
-        id={fieldId}
         type={type}
         required={required}
         placeholder={placeholder}

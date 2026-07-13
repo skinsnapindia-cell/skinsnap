@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-
 import { useCart } from "@/context/CartContext";
 import { formatINR } from "@/lib/format";
 import type { Product } from "@/lib/products";
@@ -24,7 +23,7 @@ export default function ProductPouch({ product }: { product: Product }) {
     const x = (e.clientX - r.left) / r.width - 0.5;
     const y = (e.clientY - r.top) / r.height - 0.5;
     el.style.transform = `translateY(-8px) rotateX(${(-y * 5).toFixed(
-      2,
+      2
     )}deg) rotateY(${(x * 7).toFixed(2)}deg)`;
     el.style.boxShadow = "0 40px 70px -34px rgba(38,34,28,0.5)";
   };
@@ -41,14 +40,9 @@ export default function ProductPouch({ product }: { product: Product }) {
   };
 
   return (
-    <div
-      className={isCombo ? "combo-wrap" : undefined}
-      style={{ perspective: 1200, height: "100%" }}
-    >
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: mouse-only decorative tilt; card actions are real buttons/links */}
+    <div className={isCombo ? "combo-wrap" : undefined} style={{ perspective: 1200, height: "100%" }}>
       <div
         className={isCombo ? "combo-card" : undefined}
-        role="presentation"
         onMouseMove={onMove}
         onMouseLeave={onLeave}
         style={{
@@ -83,18 +77,9 @@ export default function ProductPouch({ product }: { product: Product }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={product.img}
-            alt={
-              isCombo
-                ? "SkinSnap 4-Pack Face Pack Combo"
-                : `${product.title} Face Pack`
-            }
+            alt={isCombo ? "SkinSnap 4-Pack Face Pack Combo" : `${product.title} Face Pack`}
             loading="lazy"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              display: "block",
-            }}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           />
           {isCombo && (
             <>
@@ -125,91 +110,29 @@ export default function ProductPouch({ product }: { product: Product }) {
           )}
         </Link>
 
-        <div
-          style={{
-            padding: "0 6px",
-            display: "flex",
-            flexDirection: "column",
-            flex: 1,
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              justifyContent: "space-between",
-              marginTop: 18,
-              gap: 12,
-            }}
-          >
-            <div
-              style={{
-                fontFamily: "'Instrument Serif',serif",
-                fontSize: 22,
-                color: "#26221C",
-                lineHeight: 1.1,
-              }}
-            >
+        <div style={{ padding: "0 6px", display: "flex", flexDirection: "column", flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginTop: 18, gap: 12 }}>
+            <div style={{ fontFamily: "'Instrument Serif',serif", fontSize: 22, color: "#26221C", lineHeight: 1.1 }}>
               {product.title}
             </div>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: product.tone,
-                whiteSpace: "nowrap",
-              }}
-            >
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: product.tone, whiteSpace: "nowrap" }}>
               {product.badge}
             </div>
           </div>
-          <div
-            style={{
-              fontSize: 13,
-              color: "#6B6357",
-              marginTop: 8,
-              lineHeight: 1.55,
-              minHeight: 36,
-            }}
-          >
+          <div style={{ fontSize: 13, color: "#6B6357", marginTop: 8, lineHeight: 1.55, minHeight: 36 }}>
             {product.desc}
           </div>
 
           {/* price reflects quantity — offer price + struck MRP + savings */}
           <div style={{ marginTop: 14 }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "baseline",
-                gap: 8,
-                flexWrap: "wrap",
-              }}
-            >
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
               <span style={{ fontSize: 20, fontWeight: 700, color: "#26221C" }}>
                 {formatINR(product.priceNum * qty)}
               </span>
-              <span
-                style={{
-                  fontSize: 14,
-                  color: "#9B8F7C",
-                  textDecoration: "line-through",
-                }}
-              >
+              <span style={{ fontSize: 14, color: "#9B8F7C", textDecoration: "line-through" }}>
                 {formatINR(product.mrpNum * qty)}
               </span>
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.02em",
-                  color: "#5E7C4E",
-                  background: "#EAF1E4",
-                  borderRadius: 999,
-                  padding: "3px 9px",
-                }}
-              >
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.02em", color: "#5E7C4E", background: "#EAF1E4", borderRadius: 999, padding: "3px 9px" }}>
                 Save {formatINR((product.mrpNum - product.priceNum) * qty)}
               </span>
             </div>
@@ -221,54 +144,13 @@ export default function ProductPouch({ product }: { product: Product }) {
           </div>
 
           {/* quantity + add to cart */}
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              marginTop: "auto",
-              paddingTop: 16,
-              alignItems: "center",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                border: "1px solid #D7CCBB",
-                borderRadius: 999,
-                overflow: "hidden",
-                flexShrink: 0,
-              }}
-            >
-              <button
-                type="button"
-                aria-label="Decrease quantity"
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
-                style={stepBtn}
-              >
-                −
-              </button>
-              <span
-                style={{
-                  minWidth: 24,
-                  textAlign: "center",
-                  fontWeight: 700,
-                  fontSize: 14,
-                }}
-              >
-                {qty}
-              </span>
-              <button
-                type="button"
-                aria-label="Increase quantity"
-                onClick={() => setQty((q) => q + 1)}
-                style={stepBtn}
-              >
-                +
-              </button>
+          <div style={{ display: "flex", gap: 10, marginTop: "auto", paddingTop: 16, alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", border: "1px solid #D7CCBB", borderRadius: 999, overflow: "hidden", flexShrink: 0 }}>
+              <button aria-label="Decrease quantity" onClick={() => setQty((q) => Math.max(1, q - 1))} style={stepBtn}>−</button>
+              <span style={{ minWidth: 24, textAlign: "center", fontWeight: 700, fontSize: 14 }}>{qty}</span>
+              <button aria-label="Increase quantity" onClick={() => setQty((q) => q + 1)} style={stepBtn}>+</button>
             </div>
             <button
-              type="button"
               onClick={handleAdd}
               style={{
                 flex: 1,
