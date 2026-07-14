@@ -4,7 +4,6 @@ import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
-import MetaPixel from "@/components/MetaPixel";
 import SmoothScroll from "@/components/SmoothScroll";
 import { CartProvider } from "@/context/CartContext";
 import { FB_PIXEL_ID } from "@/lib/fbpixel";
@@ -107,36 +106,26 @@ export default function RootLayout({
         ) : null}
         {FB_PIXEL_ID ? (
           <>
-            {/* fbevents.js requires window.fbq to exist BEFORE it executes —
-                this inline stub always beats the remote script (network trip)
-                and React effects that fire earlier create the identical stub
-                via lib/fbpixel.ts, so init happens exactly once either way */}
-            <Script id="fb-pixel-stub" strategy="afterInteractive">
-              {
-                `
-                if (!window.fbq) {
-                  var n = window.fbq = function () {
-                    n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-                  };
-                  window._fbq = n;
-                  n.push = n;
-                  n.loaded = true;
-                  n.version = '2.0';
-                  n.queue = [];
-                  n.disablePushState = true;
-                  n.__ssInit = true;
-                  n('init', '${FB_PIXEL_ID}');
-                }
-                `
-              }
-            </Script>
-            <Script
-              src="https://connect.facebook.net/en_US/fbevents.js"
-              strategy="afterInteractive"
+            {/* Official Meta base code as a plain inline script: it executes
+                during HTML parsing, so window.fbq exists before any React
+                effect or click handler can call fbqTrack. Initial PageView
+                fires here; route-change PageViews come from fbevents.js's
+                built-in pushState tracking. */}
+            <script
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: Meta's official static base snippet, no user input
+              dangerouslySetInnerHTML={{
+                __html: `!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '${FB_PIXEL_ID}');
+fbq('track', 'PageView');`,
+              }}
             />
-            <Suspense fallback={null}>
-              <MetaPixel />
-            </Suspense>
             {/* raw string, not JSX: React would instantiate a JSX <img> inside
                 <noscript> as a real DOM node during hydration and the browser
                 would fire the beacon even with JS enabled (double PageView) */}
