@@ -4,8 +4,10 @@ import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import MetaPixel from "@/components/MetaPixel";
 import SmoothScroll from "@/components/SmoothScroll";
 import { CartProvider } from "@/context/CartContext";
+import { FB_PIXEL_ID } from "@/lib/fbpixel";
 import { jsonLdString, OG_DEFAULT_IMAGE, organizationJsonLd } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
 
@@ -94,6 +96,29 @@ export default function RootLayout({
             <Suspense fallback={null}>
               <GoogleAnalytics measurementId={gaMeasurementId} />
             </Suspense>
+          </>
+        ) : null}
+        {FB_PIXEL_ID ? (
+          <>
+            {/* remote script only — init + PageView go through the queueing
+                stub in lib/fbpixel.ts, so nothing is lost if this loads
+                after hydration */}
+            <Script
+              src="https://connect.facebook.net/en_US/fbevents.js"
+              strategy="afterInteractive"
+            />
+            <Suspense fallback={null}>
+              <MetaPixel />
+            </Suspense>
+            {/* raw string, not JSX: React would instantiate a JSX <img> inside
+                <noscript> as a real DOM node during hydration and the browser
+                would fire the beacon even with JS enabled (double PageView) */}
+            <noscript
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: static self-authored no-JS beacon markup
+              dangerouslySetInnerHTML={{
+                __html: `<img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${FB_PIXEL_ID}&ev=PageView&noscript=1" />`,
+              }}
+            />
           </>
         ) : null}
         <SmoothScroll>

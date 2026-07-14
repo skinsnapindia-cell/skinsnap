@@ -5,6 +5,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { InstagramIcon, WhatsappIcon } from "@/components/SocialIcons";
 import { INSTAGRAM_URL, WHATSAPP_URL } from "@/lib/social";
+import { fbqTrack } from "@/lib/fbpixel";
 import { useReveals } from "@/lib/useReveals";
 
 const faqData = [
@@ -55,6 +56,7 @@ export default function ContactPage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok)
         throw new Error(data?.error || "Could not send your message.");
+      fbqTrack("Lead", { content_name: "contact-form" });
       setStatus("sent");
       setName("");
       setEmail("");
