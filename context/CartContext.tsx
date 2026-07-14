@@ -10,6 +10,7 @@ import {
 import type { StaticImageData } from "next/image";
 import CartModal from "@/components/CartModal";
 import CheckoutModal from "@/components/CheckoutModal";
+import { fbqTrack } from "@/lib/fbpixel";
 import type { Product } from "@/lib/products";
 
 export type CartItem = {
@@ -42,6 +43,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const mergeAdd = useCallback((product: Product, qty: number) => {
+    fbqTrack("AddToCart", {
+      content_ids: [product.slug],
+      content_name: product.title,
+      content_type: "product",
+      value: product.priceNum * qty,
+      currency: "INR",
+    });
     setItems((prev) => {
       const found = prev.find((i) => i.slug === product.slug);
       if (found) {

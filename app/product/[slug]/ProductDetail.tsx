@@ -10,6 +10,7 @@ import Footer from "@/components/Footer";
 import ProductPouch from "@/components/ProductPouch";
 import { useReveals } from "@/lib/useReveals";
 import { useCart } from "@/context/CartContext";
+import { fbqTrack } from "@/lib/fbpixel";
 import { formatINR } from "@/lib/format";
 import { productDisplayName, type Product } from "@/lib/products";
 
@@ -56,6 +57,17 @@ export default function ProductDetail({
   const { addItem, buyNow } = useCart();
 
   useReveals(scopeRef);
+
+  // Meta pixel: product page view
+  useEffect(() => {
+    fbqTrack("ViewContent", {
+      content_ids: [product.slug],
+      content_name: product.title,
+      content_type: "product",
+      value: product.priceNum,
+      currency: "INR",
+    });
+  }, [product.slug, product.title, product.priceNum]);
 
   // sticky add-to-cart bar reveal
   useEffect(() => {

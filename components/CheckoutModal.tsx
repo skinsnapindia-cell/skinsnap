@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/context/CartContext";
+import { fbqTrack } from "@/lib/fbpixel";
 import { formatINR } from "@/lib/format";
 import { lockScroll, unlockScroll } from "@/lib/lenisControl";
 
@@ -51,6 +52,25 @@ export default function CheckoutModal({
     };
   }, [open, onClose]);
 
+  // Meta pixel: fire InitiateCheckout once per modal open (ref guard keeps
+  // cart edits inside the open modal from re-firing it)
+  const initiateFired = useRef(false);
+  useEffect(() => {
+    if (!open) {
+      initiateFired.current = false;
+      return;
+    }
+    if (initiateFired.current || items.length === 0) return;
+    initiateFired.current = true;
+    fbqTrack("InitiateCheckout", {
+      content_ids: items.map((i) => i.slug),
+      content_type: "product",
+      num_items: items.reduce((s, i) => s + i.qty, 0),
+      value: subtotal,
+      currency: "INR",
+    });
+  }, [open, items, subtotal]);
+
   if (!open) return null;
 
   const count = items.reduce((s, i) => s + i.qty, 0);
@@ -81,6 +101,21 @@ export default function CheckoutModal({
       const data = await res.json().catch(() => ({}));
       if (!res.ok)
         throw new Error(data?.error || "Could not send confirmation email.");
+      // event_id lets a future server-side Conversions API Purchase
+      // deduplicate against this browser event
+      fbqTrack(
+        "Purchase",
+        {
+          content_ids: items.map((i) => i.slug),
+          content_type: "product",
+          num_items: count,
+          value: subtotal,
+          currency: "INR",
+        },
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random()}`,
+      );
       setReceiptEmail(email);
       setReceiptCount(count);
       setStatus("done");
