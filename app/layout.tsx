@@ -107,9 +107,29 @@ export default function RootLayout({
         ) : null}
         {FB_PIXEL_ID ? (
           <>
-            {/* remote script only — init + PageView go through the queueing
-                stub in lib/fbpixel.ts, so nothing is lost if this loads
-                after hydration */}
+            {/* fbevents.js requires window.fbq to exist BEFORE it executes —
+                this inline stub always beats the remote script (network trip)
+                and React effects that fire earlier create the identical stub
+                via lib/fbpixel.ts, so init happens exactly once either way */}
+            <Script id="fb-pixel-stub" strategy="afterInteractive">
+              {
+                `
+                if (!window.fbq) {
+                  var n = window.fbq = function () {
+                    n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+                  };
+                  window._fbq = n;
+                  n.push = n;
+                  n.loaded = true;
+                  n.version = '2.0';
+                  n.queue = [];
+                  n.disablePushState = true;
+                  n.__ssInit = true;
+                  n('init', '${FB_PIXEL_ID}');
+                }
+                `
+              }
+            </Script>
             <Script
               src="https://connect.facebook.net/en_US/fbevents.js"
               strategy="afterInteractive"

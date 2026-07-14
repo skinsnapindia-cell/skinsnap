@@ -24,6 +24,8 @@ type FbqStub = {
   push: FbqStub;
   loaded: boolean;
   version: string;
+  /** set by whichever code path queued fbq('init') first */
+  __ssInit?: boolean;
   /** stop fbevents.js auto-firing PageView on pushState/replaceState —
    * Next.js history updates otherwise double-count our manual PageViews */
   disablePushState?: boolean;
@@ -54,19 +56,19 @@ function ensureFbq(): FbqStub | undefined {
   return stub;
 }
 
-let initialised = false;
-
 /**
  * Returns fbq with `init` guaranteed to have been queued first. Effect
  * ordering means a page's ViewContent can otherwise reach the queue before
  * MetaPixel's init — fbevents.js silently drops events tracked before init.
+ * The flag lives on the fbq object itself so the inline stub in
+ * app/layout.tsx and this module can't double-init.
  */
 function ensureInit(): FbqStub | undefined {
   if (!FB_PIXEL_ID) return undefined;
   const fbq = ensureFbq();
   if (!fbq) return undefined;
-  if (!initialised) {
-    initialised = true;
+  if (!fbq.__ssInit) {
+    fbq.__ssInit = true;
     fbq("init", FB_PIXEL_ID);
   }
   return fbq;
