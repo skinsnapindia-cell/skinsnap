@@ -29,6 +29,15 @@ export function organizationJsonLd() {
   };
 }
 
+export function websiteJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "SkinSnap",
+    url: SITE_URL,
+  };
+}
+
 export function productJsonLd(product: Product) {
   return {
     "@context": "https://schema.org",

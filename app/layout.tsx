@@ -8,7 +8,7 @@ import MetaPixel from "@/components/MetaPixel";
 import SmoothScroll from "@/components/SmoothScroll";
 import { CartProvider } from "@/context/CartContext";
 import { FB_PIXEL_ID } from "@/lib/fbpixel";
-import { jsonLdString, OG_DEFAULT_IMAGE, organizationJsonLd } from "@/lib/seo";
+import { jsonLdString, OG_DEFAULT_IMAGE, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
 
 const manrope = Manrope({
@@ -75,6 +75,13 @@ export default function RootLayout({
           // biome-ignore lint/security/noDangerouslySetInnerHtml: for seo json-ld
           dangerouslySetInnerHTML={{
             __html: jsonLdString(organizationJsonLd()),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: static self-authored JSON-LD, < escaped in jsonLdString
+          dangerouslySetInnerHTML={{
+            __html: jsonLdString(websiteJsonLd()),
           }}
         />
         {gaMeasurementId ? (
