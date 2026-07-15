@@ -5,7 +5,7 @@ from the Claude Design handoff bundle. Same theme, layout, product images,
 animations, and responsive behaviour as the reference prototype — rebuilt as a
 real Next.js app.
 
-Clicking **Buy Now** (on a product card or a product page) opens a checkout
+Clicking **Pre-Order** (on a product card or a product page) opens a checkout
 modal that collects the customer's name + email, sends a confirmation email via
 the **Resend API**, and then shows a thank-you message confirming the order.
 
@@ -21,12 +21,12 @@ the **Resend API**, and then shows a thank-you message confirming the order.
 
 ## Pages
 
-| Route | Page |
-| --- | --- |
-| `/` | Home — hero slider, featured collection, innovation strip |
-| `/products` | Collection grid + filters |
-| `/how-it-works` | Scroll-driven pouch activation animation + FAQ |
-| `/contact` | Contact form, business info, map, FAQ |
+| Route             | Page                                                         |
+| ----------------- | ------------------------------------------------------------ |
+| `/`               | Home — hero slider, featured collection, innovation strip    |
+| `/products`       | Collection grid + filters                                    |
+| `/how-it-works`   | Scroll-driven pouch activation animation + FAQ               |
+| `/contact`        | Contact form, business info, map, FAQ                        |
 | `/product/[slug]` | Product detail (front/inside/back gallery, reviews, related) |
 
 ## "No backend" note
@@ -34,7 +34,7 @@ the **Resend API**, and then shows a thank-you message confirming the order.
 The build is frontend-only **except for one unavoidable piece**: the Resend API
 requires a secret key and blocks direct browser (CORS) calls, so the email
 cannot be sent from the browser alone. `app/api/order/route.ts` is a single,
-minimal serverless relay whose *only* job is to send the confirmation email.
+minimal serverless relay whose _only_ job is to send the confirmation email.
 There is **no database and no other backend logic**.
 
 ## Getting started
@@ -68,7 +68,7 @@ configured" message instead of silently failing.
 1. Create a GA4 property and copy the measurement ID, which starts with `G-`.
 2. Set `NEXT_PUBLIC_GA_MEASUREMENT_ID` in `.env.local`.
 3. Analytics loads only when that variable is present, so local development can
-  stay untracked unless you opt in.
+   stay untracked unless you opt in.
 
 ## Production build
 
