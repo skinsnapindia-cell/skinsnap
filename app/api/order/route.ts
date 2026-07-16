@@ -102,10 +102,10 @@ export async function POST(req: Request) {
       <div style="height:1px;background:#E0D6C6;margin:26px 0;"></div>
       <h1 style="font-family:Georgia,serif;font-weight:normal;font-size:30px;margin:0 0 14px;">Thank you, ${firstName}!</h1>
       <p style="font-size:15px;line-height:1.7;color:#5A5348;margin:0 0 24px;">
-        We've received your order. Your freshly activated face pack ritual is on the way.
+        We're happy to confirm your <strong>pre-order booking</strong> with SkinSnap. This is not a dispatch confirmation — we'll email you again as soon as your freshly activated face packs are ready to ship.
       </p>
       <div style="background:#FCFAF5;border:1px solid #EAE0D0;border-radius:16px;padding:22px 24px;">
-        <div style="font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#A15E38;margin-bottom:14px;">Order Summary</div>
+        <div style="font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#A15E38;margin-bottom:14px;">Pre-Order Booking Summary</div>
         <table style="width:100%;border-collapse:collapse;font-size:15px;">
           ${rows}
           <tr>
@@ -116,15 +116,21 @@ export async function POST(req: Request) {
             <td style="padding:6px 0 0;color:#6B6357;">Payment</td>
             <td style="padding:6px 0 0;text-align:right;color:#6B6357;">${paymentLabel}</td>
           </tr>
+          <tr>
+            <td style="padding:6px 0 0;color:#6B6357;">Shipping</td>
+            <td style="padding:6px 0 0;text-align:right;color:#6B6357;">Charges may apply</td>
+          </tr>
         </table>
+        <div style="font-size:12px;color:#9B8F7C;margin-top:14px;line-height:1.6;">
+          The total above is for your pre-order booking. Applicable shipping charges will be confirmed before dispatch and collected on delivery.
+        </div>
       </div>
       <div style="background:#FCFAF5;border:1px solid #EAE0D0;border-radius:16px;padding:22px 24px;margin-top:16px;">
         <div style="font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#A15E38;margin-bottom:12px;">Shipping To</div>
         <div style="font-size:14px;line-height:1.7;color:#26221C;">${shipTo}</div>
       </div>
       <p style="font-size:14px;line-height:1.7;color:#6B6357;margin:24px 0 0;">
-        Press the rose water chamber, massage 10–15 seconds, tear, and glow.
-        Questions? Just reply to this email.
+        We'll be in touch soon with your dispatch details. Questions about your pre-order booking? Just reply to this email.
       </p>
       <div style="height:1px;background:#E0D6C6;margin:28px 0 18px;"></div>
       <div style="font-size:12px;color:#9B8F7C;">© 2026 SkinSnap · Freshly Activated. Naturally Beautiful.</div>
@@ -135,7 +141,7 @@ export async function POST(req: Request) {
     const { data, error } = await resend.emails.send({
       from,
       to: email,
-      subject: `Your SkinSnap order is confirmed 🌿`,
+      subject: `Your SkinSnap Pre-Order Booking is confirmed 🌿`,
       html,
     });
     if (error) {

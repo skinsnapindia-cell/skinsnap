@@ -365,7 +365,7 @@ export default function CartModal({
                     background: "#8FA97C",
                   }}
                 />
-                Cash on Delivery available
+                Cash on Delivery · Shipping charges may apply
               </div>
               <button
                 onClick={onClose}
