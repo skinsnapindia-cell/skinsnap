@@ -213,11 +213,11 @@ export default function CheckoutModal({
                 margin: "0 0 6px",
               }}
             >
-              Your order for{" "}
+              Your pre-order booking for{" "}
               <strong>
                 {receiptCount} {receiptCount === 1 ? "pouch" : "pouches"}
               </strong>{" "}
-              has been received.
+              is confirmed.
             </p>
             <p
               style={{
@@ -227,8 +227,9 @@ export default function CheckoutModal({
                 margin: 0,
               }}
             >
-              A confirmation email is on its way to{" "}
-              <strong>{receiptEmail}</strong>.
+              A pre-order booking confirmation is on its way to{" "}
+              <strong>{receiptEmail}</strong>. We&apos;ll notify you before
+              dispatch — shipping charges may apply.
             </p>
             <button
               onClick={onClose}
@@ -476,7 +477,7 @@ export default function CheckoutModal({
                     Cash on Delivery (COD)
                   </span>
                   <span style={{ fontSize: 12.5, color: "#6B6357" }}>
-                    Pay in cash when your order arrives.
+                    Pay in cash on delivery. Shipping charges may apply.
                   </span>
                 </span>
               </label>
@@ -524,8 +525,8 @@ export default function CheckoutModal({
                   lineHeight: 1.5,
                 }}
               >
-                We&apos;ll email your order confirmation. Pay in cash on
-                delivery.
+                We&apos;ll email your pre-order booking confirmation. Cash on
+                delivery — shipping charges may apply.
               </p>
             </form>
           </>
