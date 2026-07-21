@@ -38,6 +38,12 @@ export function websiteJsonLd() {
   };
 }
 
+/**
+ * `aggregateRating`/`review` are intentionally omitted: the ratings shown on
+ * the product page are placeholder marketing copy, not genuine aggregated
+ * reviews. Marking them up would violate Google's review-snippet policy. Add
+ * them here only once real review data exists.
+ */
 export function productJsonLd(product: Product) {
   return {
     "@context": "https://schema.org",
@@ -57,6 +63,41 @@ export function productJsonLd(product: Product) {
       price: product.priceNum,
       availability: "https://schema.org/InStock",
       itemCondition: "https://schema.org/NewCondition",
+      // Single-use hygiene product — returns are not accepted.
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "IN",
+        returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+      },
+      // Ships within India only. Rate is a flat placeholder (real cost varies
+      // ~₹60–120); update `value` once exact shipping is finalised.
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: 100,
+          currency: "INR",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "IN",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 1,
+            maxValue: 2,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 4,
+            maxValue: 10,
+            unitCode: "DAY",
+          },
+        },
+      },
     },
   };
 }
