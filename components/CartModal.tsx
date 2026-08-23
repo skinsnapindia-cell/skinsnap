@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { formatINR } from "@/lib/format";
 import { productDisplayName } from "@/lib/products";
@@ -14,8 +15,15 @@ export default function CartModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const { items, subtotal, cartCount, setQty, removeItem, openCheckout } =
-    useCart();
+  const { items, subtotal, cartCount, setQty, removeItem } = useCart();
+  const router = useRouter();
+
+  // Cart's primary CTA goes to the full /order page (the roomier form). The
+  // quick checkout modal is still used by the product "Buy Now" buttons.
+  const goToOrderPage = () => {
+    onClose();
+    router.push("/order");
+  };
 
   // freeze page scroll (incl. Lenis) + close on Escape while open
   useEffect(() => {
@@ -334,7 +342,7 @@ export default function CartModal({
                 </span>
               </div>
               <button
-                onClick={openCheckout}
+                onClick={goToOrderPage}
                 style={primaryBtn}
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.background = "#A15E38")

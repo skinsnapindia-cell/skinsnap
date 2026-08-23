@@ -20,6 +20,15 @@ export type Product = {
   activeLabel: string;
   long: string;
   ingredients: { name: string; body: string; bg: string; color: string }[];
+  /**
+   * Shipped weight of ONE unit, in kilograms. Used for Shiprocket courier
+   * rate lookups and shipment creation.
+   *
+   * ⚠️ PLACEHOLDER ESTIMATES — replace with real weighed values before going
+   * live. Wrong weights mean wrong shipping quotes and courier reweigh
+   * penalties from Shiprocket.
+   */
+  weightKg: number;
 };
 
 /**
@@ -60,6 +69,7 @@ export const products: Product[] = [
         color: "#8A6A2E",
       },
     ],
+    weightKg: 0.25,
   },
   {
     slug: "multani-mitti",
@@ -87,6 +97,7 @@ export const products: Product[] = [
         color: "#7A6249",
       },
     ],
+    weightKg: 0.05,
   },
   {
     slug: "orange-peel",
@@ -114,6 +125,7 @@ export const products: Product[] = [
         color: "#8A6A2E",
       },
     ],
+    weightKg: 0.05,
   },
   {
     slug: "de-tan",
@@ -141,6 +153,7 @@ export const products: Product[] = [
         color: "#8A712E",
       },
     ],
+    weightKg: 0.05,
   },
   {
     slug: "korean-glow",
@@ -168,6 +181,7 @@ export const products: Product[] = [
         color: "#546272",
       },
     ],
+    weightKg: 0.05,
   },
 ];
 
