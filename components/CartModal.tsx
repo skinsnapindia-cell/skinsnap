@@ -318,7 +318,7 @@ export default function CartModal({
                           {formatINR(lineTotal(item, item.qty))}
                         </div>
                         {lineSavings(item, item.qty) > 0 && (
-                          <div style={{ fontSize: 11.5, color: "#5E7C4E", fontWeight: 700 }}>
+                          <div style={{ fontSize: 14, color: "#5E7C4E", fontWeight: 800 }}>
                             Save {formatINR(lineSavings(item, item.qty))}
                           </div>
                         )}
@@ -338,14 +338,17 @@ export default function CartModal({
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
-                    alignItems: "baseline",
-                    marginBottom: 10,
-                    fontSize: 13.5,
-                    fontWeight: 700,
+                    alignItems: "center",
+                    marginBottom: 12,
+                    background: "#EAF1E4",
+                    borderRadius: 10,
+                    padding: "11px 14px",
+                    fontSize: 17,
+                    fontWeight: 800,
                     color: "#5E7C4E",
                   }}
                 >
-                  <span>You save</span>
+                  <span>🎉 You save</span>
                   <span>{formatINR(totalSavings)}</span>
                 </div>
               )}

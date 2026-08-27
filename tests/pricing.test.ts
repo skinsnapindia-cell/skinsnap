@@ -22,7 +22,8 @@ const TIERS: PricingTier[] = [
 ];
 
 const tiered: Priceable = { priceNum: 399, pricingTiers: TIERS };
-const flat: Priceable = { priceNum: 749 }; // no tiers (e.g. combo)
+const flat: Priceable = { priceNum: 749 }; // no tiers, no MRP
+const combo: Priceable = { priceNum: 749, mrpNum: 1996 }; // no tiers, MRP-based savings
 
 describe("tierTotalForQty", () => {
   it("returns the exact tier total for each configured quantity", () => {
@@ -97,8 +98,13 @@ describe("lineRegularTotal & lineSavings", () => {
     expect(lineSavings(tiered, 4)).toBe(597);
     expect(lineSavings(tiered, 5)).toBe(846);
   });
-  it("is never negative and is 0 for flat products", () => {
+  it("is never negative and is 0 for flat products with no MRP", () => {
     expect(lineSavings(flat, 3)).toBe(0);
+  });
+  it("uses MRP as the regular price for non-tiered products (e.g. combo)", () => {
+    expect(lineRegularTotal(combo, 2)).toBe(1996 * 2);
+    expect(lineTotal(combo, 2)).toBe(749 * 2);
+    expect(lineSavings(combo, 2)).toBe(1996 * 2 - 749 * 2); // 2494
   });
 });
 

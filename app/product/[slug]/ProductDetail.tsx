@@ -317,12 +317,12 @@ export default function ProductDetail({
                   {savingsTotal > 0 && (
                     <span
                       style={{
-                        fontSize: 12,
-                        fontWeight: 700,
+                        fontSize: 15,
+                        fontWeight: 800,
                         color: "#5E7C4E",
                         background: "#EAF1E4",
                         borderRadius: 999,
-                        padding: "4px 11px",
+                        padding: "5px 13px",
                       }}
                     >
                       Save {formatINR(savingsTotal)}
@@ -935,7 +935,7 @@ function PackSelector({
                   {formatINR(t.total)}
                 </span>
                 {savings > 0 && (
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#5E7C4E" }}>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: "#5E7C4E" }}>
                     Save {formatINR(savings)}
                   </span>
                 )}

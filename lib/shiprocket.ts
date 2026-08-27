@@ -73,6 +73,10 @@ export type CourierQuote = {
   courierName: string;
   /** total shipping charge in rupees, COD charges included */
   rate: number;
+  /** freight portion only (rate minus COD charge) */
+  freight: number;
+  /** COD collection charge in rupees (0 for prepaid quotes) */
+  codCharge: number;
   /** estimated delivery days, when Shiprocket reports it */
   etdDays: number | null;
 };
@@ -80,6 +84,7 @@ export type CourierQuote = {
 type ServiceabilityCourier = {
   courier_name?: string;
   rate?: number;
+  freight_charge?: number;
   cod_charges?: number;
   estimated_delivery_days?: string | number;
 };
@@ -116,16 +121,24 @@ export async function getCheapestQuote(opts: {
   if (couriers.length === 0) return null;
 
   const quotes: CourierQuote[] = couriers
-    .map((c) => ({
-      courierName: c.courier_name || "Courier",
-      // `rate` already includes COD charges on most Shiprocket plans, but not
-      // all — add cod_charges only when it isn't already folded in.
-      rate: Number(c.rate) || 0,
-      etdDays:
-        c.estimated_delivery_days != null && c.estimated_delivery_days !== ""
-          ? Number(c.estimated_delivery_days) || null
-          : null,
-    }))
+    .map((c) => {
+      const rate = Number(c.rate) || 0;
+      const codCharge = Number(c.cod_charges) || 0;
+      // Prefer the reported freight; fall back to rate − COD so the two always
+      // add up to the charged rate in the UI.
+      const freight =
+        c.freight_charge != null ? Number(c.freight_charge) || 0 : Math.max(0, rate - codCharge);
+      return {
+        courierName: c.courier_name || "Courier",
+        rate,
+        freight,
+        codCharge,
+        etdDays:
+          c.estimated_delivery_days != null && c.estimated_delivery_days !== ""
+            ? Number(c.estimated_delivery_days) || null
+            : null,
+      };
+    })
     .filter((q) => q.rate > 0);
 
   if (quotes.length === 0) return null;

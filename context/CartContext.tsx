@@ -20,6 +20,8 @@ export type CartItem = {
   slug: string;
   title: string;
   priceNum: number;
+  /** MRP, carried so cart/checkout can show the full saved amount */
+  mrpNum: number;
   /** carried so cart/checkout can price tiers without importing the catalog */
   pricingTiers?: PricingTier[];
   img: StaticImageData;
@@ -51,6 +53,7 @@ function loadStoredCart(): CartItem[] {
           slug: product.slug,
           title: product.title,
           priceNum: product.priceNum,
+          mrpNum: product.mrpNum,
           pricingTiers: product.pricingTiers,
           img: product.img,
           qty,
@@ -142,6 +145,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           slug: product.slug,
           title: product.title,
           priceNum: product.priceNum,
+          mrpNum: product.mrpNum,
           pricingTiers: product.pricingTiers,
           img: product.img,
           qty,

@@ -29,6 +29,8 @@ export type PricingTier = {
 /** The minimum a pricing function needs to know about a product. */
 export type Priceable = {
   priceNum: number;
+  /** struck-through MRP; used as the "regular" price for non-tiered products */
+  mrpNum?: number;
   pricingTiers?: PricingTier[];
 };
 
@@ -90,10 +92,20 @@ export function lineUnitPrice(p: Priceable, qty: number): number {
   return round2(lineTotal(p, n) / n);
 }
 
-/** The "regular" (undiscounted) line price = single-unit price × qty. */
+/**
+ * "Regular" (undiscounted) per-unit price used as the savings basis:
+ * - tiered products: the qty-1 tier price,
+ * - non-tiered products: the MRP when it's higher than the price, else the price.
+ */
+function regularUnitPrice(p: Priceable): number {
+  if (hasTiers(p)) return singleUnitPrice(p);
+  return p.mrpNum && p.mrpNum > p.priceNum ? p.mrpNum : p.priceNum;
+}
+
+/** The "regular" (undiscounted) line price = regular unit price × qty. */
 export function lineRegularTotal(p: Priceable, qty: number): number {
   const n = Math.max(1, Math.floor(qty));
-  return Math.round(singleUnitPrice(p) * n);
+  return Math.round(regularUnitPrice(p) * n);
 }
 
 /** Savings on a line vs. buying that many at the single-unit price. Never negative. */

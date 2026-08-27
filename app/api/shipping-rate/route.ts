@@ -52,9 +52,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ status: "unserviceable" });
     }
 
+    const rate = Math.round(quote.rate);
+    const codCharge = Math.round(quote.codCharge);
     return NextResponse.json({
       status: "ok",
-      rate: Math.round(quote.rate),
+      rate,
+      // freight is the remainder so freight + codCharge always equals `rate`
+      freight: Math.max(0, rate - codCharge),
+      codCharge,
       courier: quote.courierName,
       etdDays: quote.etdDays,
       weightKg: parcelWeightKg(items),

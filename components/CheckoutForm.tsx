@@ -16,7 +16,7 @@ type Status = "form" | "sending" | "done" | "error";
 
 type Shipping =
   | { status: "idle" | "loading" | "unserviceable" | "unknown" }
-  | { status: "ok"; rate: number; courier: string; etdDays: number | null };
+  | { status: "ok"; rate: number; freight: number; codCharge: number; courier: string; etdDays: number | null };
 
 type PinLookup =
   | { status: "idle" | "loading" | "notfound" | "unavailable" }
@@ -157,7 +157,14 @@ export default function CheckoutForm({
         const data = await res.json().catch(() => ({}));
         if (cancelled) return;
         if (data?.status === "ok") {
-          setShipping({ status: "ok", rate: data.rate, courier: data.courier, etdDays: data.etdDays ?? null });
+          setShipping({
+            status: "ok",
+            rate: data.rate,
+            freight: data.freight ?? data.rate,
+            codCharge: data.codCharge ?? 0,
+            courier: data.courier,
+            etdDays: data.etdDays ?? null,
+          });
         } else if (data?.status === "unserviceable") {
           setShipping({ status: "unserviceable" });
         } else {
@@ -176,11 +183,16 @@ export default function CheckoutForm({
   const count = items.reduce((s, i) => s + i.qty, 0);
   const savings = items.reduce((s, i) => s + lineSavings(i, i.qty), 0);
   const isPrepaid = payment === "prepaid";
-  // Live COD-inclusive courier quote (freight + COD fee). Prepaid orders ship
-  // free, so the customer only pays this shipping when they choose COD.
+  // Live COD-inclusive courier quote, split into freight + COD collection fee.
+  // Prepaid orders ship free, so the customer only pays this when choosing COD.
   const codShippingRate = shipping.status === "ok" ? shipping.rate : 0;
+  const codFreight = shipping.status === "ok" ? shipping.freight : 0;
+  const codFee = shipping.status === "ok" ? shipping.codCharge : 0;
   const shippingRate = isPrepaid ? 0 : codShippingRate;
   const grandTotal = subtotal + shippingRate;
+  // Everything the customer saves on this order: the quantity discount, plus
+  // the waived COD shipping when they pay online (prepaid).
+  const totalYouSave = savings + (isPrepaid ? codShippingRate : 0);
 
   const goShop = () => {
     if (onClose) onClose();
@@ -365,7 +377,7 @@ export default function CheckoutForm({
             <div style={{ textAlign: "right", flexShrink: 0 }}>
               <div style={{ fontWeight: 700, fontSize: 15, color: "#26221C" }}>{formatINR(lineTotal(i, i.qty))}</div>
               {sav > 0 && (
-                <div style={{ fontSize: 11.5, color: "#5E7C4E", fontWeight: 700 }}>Save {formatINR(sav)}</div>
+                <div style={{ fontSize: 14, color: "#5E7C4E", fontWeight: 800 }}>Save {formatINR(sav)}</div>
               )}
             </div>
           </div>
@@ -380,12 +392,6 @@ export default function CheckoutForm({
         <span>Subtotal</span>
         <span>{formatINR(subtotal)}</span>
       </div>
-      {savings > 0 && (
-        <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 6, fontSize: 13.5, color: "#5E7C4E", fontWeight: 700 }}>
-          <span>Buy more, save more</span>
-          <span>−{formatINR(savings)}</span>
-        </div>
-      )}
       <div style={{ display: "flex", justifyContent: "space-between", gap: 10, paddingTop: 6, fontSize: 13.5, color: "#6B6357" }}>
         <span>Shipping</span>
         <span style={{ textAlign: "right" }}>
@@ -399,7 +405,7 @@ export default function CheckoutForm({
               <span style={{ fontWeight: 700, color: "#5E7C4E" }}>FREE</span>
             </span>
           ) : shipping.status === "ok" ? (
-            <span style={{ fontWeight: 600, color: "#26221C" }}>{formatINR(shipping.rate)}</span>
+            <span style={{ fontWeight: 600, color: "#26221C" }}>{formatINR(codFreight)}</span>
           ) : shipping.status === "loading" ? (
             "Calculating…"
           ) : shipping.status === "unserviceable" ? (
@@ -411,9 +417,15 @@ export default function CheckoutForm({
           )}
         </span>
       </div>
+      {!isPrepaid && shipping.status === "ok" && codFee > 0 && (
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, paddingTop: 6, fontSize: 13.5, color: "#6B6357" }}>
+          <span>COD charge</span>
+          <span style={{ fontWeight: 600, color: "#26221C" }}>{formatINR(codFee)}</span>
+        </div>
+      )}
       {isPrepaid ? (
         codShippingRate > 0 && (
-          <div style={{ fontSize: 11.5, color: "#5E7C4E", textAlign: "right", marginTop: 2, fontWeight: 700 }}>
+          <div style={{ fontSize: 13, color: "#5E7C4E", textAlign: "right", marginTop: 2, fontWeight: 800 }}>
             You save {formatINR(codShippingRate)} with online payment
           </div>
         )
@@ -427,6 +439,12 @@ export default function CheckoutForm({
         <span>Total</span>
         <span>{formatINR(grandTotal)}</span>
       </div>
+      {totalYouSave > 0 && (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12, background: "#EAF1E4", borderRadius: 10, padding: "11px 14px", fontSize: 17, fontWeight: 800, color: "#5E7C4E" }}>
+          <span>🎉 You save</span>
+          <span>{formatINR(totalYouSave)}</span>
+        </div>
+      )}
     </div>
   );
 

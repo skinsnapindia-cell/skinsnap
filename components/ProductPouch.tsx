@@ -166,7 +166,7 @@ export default function ProductPouch({ product }: { product: Product }) {
                 </span>
               )}
               {savings > 0 && (
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.02em", color: "#5E7C4E", background: "#EAF1E4", borderRadius: 999, padding: "3px 9px" }}>
+                <span style={{ fontSize: 14, fontWeight: 800, letterSpacing: "0.02em", color: "#5E7C4E", background: "#EAF1E4", borderRadius: 999, padding: "4px 11px" }}>
                   Save {formatINR(savings)}
                 </span>
               )}
