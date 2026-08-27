@@ -86,7 +86,7 @@ textarea::placeholder {
   );
   animation: combo-sheen 3.6s ease-in-out infinite;
 }
-/* floating "₹99" offer ribbon */
+/* floating combo offer ribbon */
 .combo-ribbon {
   animation: combo-badge-pop 3s ease-in-out infinite;
 }
@@ -183,18 +183,51 @@ textarea::placeholder {
 .home-hero {
   position: relative;
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   align-items: center;
-  gap: 60px;
   padding: 120px 64px 80px;
+  overflow: hidden;
   background: linear-gradient(180deg, #fbf6ef 0%, #f1e7d8 100%);
+}
+.home-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+/* Warm-white blend, strong on the left (behind the copy) fading to reveal the
+   product photo on the right. */
+.home-hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    rgba(246, 241, 233, 0.98) 0%,
+    rgba(246, 241, 233, 0.95) 30%,
+    rgba(246, 241, 233, 0.62) 52%,
+    rgba(246, 241, 233, 0) 78%
+  );
+}
+.home-hero__petals {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.home-hero__dots {
+  position: absolute;
+  bottom: 42px;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
 }
 .home-hero__copy {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   max-width: 560px;
-  justify-self: end;
 }
 .home-hero__title {
   font-family: var(--font-instrument-serif), "Instrument Serif", serif;
@@ -205,17 +238,30 @@ textarea::placeholder {
   letter-spacing: -0.01em;
   color: var(--ink);
 }
-.home-hero__slider {
-  position: relative;
-  z-index: 2;
-  justify-self: start;
-  width: 100%;
-  max-width: 600px;
-}
-
 .section-title {
   font-family: var(--font-instrument-serif), "Instrument Serif", serif;
   font-weight: 400;
+}
+
+/* Checkout page: products on the left, sticky pricing/payment rail on the right */
+.order-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+.order-summary-rail {
+  position: sticky;
+  top: 100px;
+}
+@media (max-width: 900px) {
+  .order-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .order-summary-rail {
+    position: static;
+  }
 }
 
 /* SVG labels (pouch diagrams) declare font-family="Manrope" as a presentation
@@ -240,14 +286,12 @@ svg text {
 /* ---------- Responsive breakpoints ---------- */
 @media (max-width: 900px) {
   .home-hero {
-    grid-template-columns: 1fr;
+    justify-content: center;
     text-align: center;
-    padding: 130px 28px 60px;
-    gap: 40px;
-    min-height: auto;
+    padding: 120px 24px 70px;
+    min-height: 90vh;
   }
   .home-hero__copy {
-    justify-self: center;
     max-width: 100%;
   }
   .home-hero__copy p {
@@ -257,9 +301,15 @@ svg text {
   .home-hero__copy .hero-cta {
     justify-content: center;
   }
-  .home-hero__slider {
-    justify-self: center;
-    max-width: 460px;
+  /* On a narrow screen the copy sits over the whole photo, so use a more even
+     veil instead of the left-to-right blend. */
+  .home-hero__scrim {
+    background: linear-gradient(
+      180deg,
+      rgba(246, 241, 233, 0.92) 0%,
+      rgba(246, 241, 233, 0.8) 55%,
+      rgba(246, 241, 233, 0.94) 100%
+    );
   }
   .home-hero__title {
     font-size: 60px;

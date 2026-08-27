@@ -4,8 +4,9 @@ import Image from "next/image";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-import { formatINR } from "@/lib/format";
+import { formatINR, formatUnitINR } from "@/lib/format";
 import { productDisplayName } from "@/lib/products";
+import { lineTotal, lineUnitPrice, lineSavings, singleUnitPrice } from "@/lib/pricing";
 import { lockScroll, unlockScroll } from "@/lib/lenisControl";
 
 export default function CartModal({
@@ -17,6 +18,8 @@ export default function CartModal({
 }) {
   const { items, subtotal, cartCount, setQty, removeItem } = useCart();
   const router = useRouter();
+
+  const totalSavings = items.reduce((s, i) => s + lineSavings(i, i.qty), 0);
 
   // Cart's primary CTA goes to the full /order page (the roomier form). The
   // quick checkout modal is still used by the product "Buy Now" buttons.
@@ -162,7 +165,7 @@ export default function CartModal({
               Your cart is empty
             </div>
             <div style={{ fontSize: 14, lineHeight: 1.6 }}>
-              Add a freshly activated ritual to get started.
+              Add a fresh, natural face-pack powder to get started.
             </div>
             <button
               onClick={onClose}
@@ -261,7 +264,12 @@ export default function CartModal({
                     <div
                       style={{ fontSize: 13, color: "#9B8F7C", marginTop: 2 }}
                     >
-                      {formatINR(item.priceNum)} each
+                      {formatUnitINR(lineUnitPrice(item, item.qty))} each
+                      {lineSavings(item, item.qty) > 0 ? (
+                        <span style={{ textDecoration: "line-through", color: "#C3B8A5", marginLeft: 6 }}>
+                          {formatINR(singleUnitPrice(item))}
+                        </span>
+                      ) : null}
                     </div>
                     <div
                       style={{
@@ -305,8 +313,15 @@ export default function CartModal({
                           +
                         </button>
                       </div>
-                      <div style={{ fontWeight: 700, fontSize: 16 }}>
-                        {formatINR(item.priceNum * item.qty)}
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontWeight: 700, fontSize: 16 }}>
+                          {formatINR(lineTotal(item, item.qty))}
+                        </div>
+                        {lineSavings(item, item.qty) > 0 && (
+                          <div style={{ fontSize: 11.5, color: "#5E7C4E", fontWeight: 700 }}>
+                            Save {formatINR(lineSavings(item, item.qty))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -318,6 +333,22 @@ export default function CartModal({
             <div
               style={{ borderTop: "1px solid #EAE0D0", padding: "22px 28px" }}
             >
+              {totalSavings > 0 && (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "baseline",
+                    marginBottom: 10,
+                    fontSize: 13.5,
+                    fontWeight: 700,
+                    color: "#5E7C4E",
+                  }}
+                >
+                  <span>You save</span>
+                  <span>{formatINR(totalSavings)}</span>
+                </div>
+              )}
               <div
                 style={{
                   display: "flex",

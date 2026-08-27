@@ -66,7 +66,7 @@ export async function POST(req: Request) {
   <div style="margin:0;padding:0;background:#F6F1E9;font-family:'Helvetica Neue',Arial,sans-serif;color:#26221C;">
     <div style="max-width:520px;margin:0 auto;padding:40px 24px;">
       <div style="font-family:Georgia,serif;font-size:26px;letter-spacing:2px;color:#26221C;">SKINSNAP</div>
-      <div style="font-family:Georgia,serif;font-style:italic;color:#A15E38;font-size:15px;margin-top:4px;">Fresh Clay. Zero Mess.</div>
+      <div style="font-family:Georgia,serif;font-style:italic;color:#A15E38;font-size:15px;margin-top:4px;">Pure Clay. Freshly Mixed.</div>
       <div style="height:1px;background:#E0D6C6;margin:26px 0;"></div>
       <h1 style="font-family:Georgia,serif;font-weight:normal;font-size:30px;margin:0 0 14px;">Thank you, ${firstName}!</h1>
       <p style="font-size:15px;line-height:1.7;color:#5A5348;margin:0 0 24px;">
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
         Need to add anything? Just reply to this email — it comes straight to our team.
       </p>
       <div style="height:1px;background:#E0D6C6;margin:28px 0 18px;"></div>
-      <div style="font-size:12px;color:#9B8F7C;">© 2026 SkinSnap · Freshly Activated. Naturally Beautiful.</div>
+      <div style="font-size:12px;color:#9B8F7C;">© 2026 SkinSnap · Freshly Mixed. Naturally Beautiful.</div>
     </div>
   </div>`;
 

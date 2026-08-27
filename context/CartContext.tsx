@@ -14,11 +14,14 @@ import CartModal from "@/components/CartModal";
 import CheckoutModal from "@/components/CheckoutModal";
 import { fbqTrack } from "@/lib/fbpixel";
 import { getProduct, type Product } from "@/lib/products";
+import { cartSubtotal, type PricingTier } from "@/lib/pricing";
 
 export type CartItem = {
   slug: string;
   title: string;
   priceNum: number;
+  /** carried so cart/checkout can price tiers without importing the catalog */
+  pricingTiers?: PricingTier[];
   img: StaticImageData;
   qty: number;
 };
@@ -48,6 +51,7 @@ function loadStoredCart(): CartItem[] {
           slug: product.slug,
           title: product.title,
           priceNum: product.priceNum,
+          pricingTiers: product.pricingTiers,
           img: product.img,
           qty,
         });
@@ -138,6 +142,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           slug: product.slug,
           title: product.title,
           priceNum: product.priceNum,
+          pricingTiers: product.pricingTiers,
           img: product.img,
           qty,
         },
@@ -190,10 +195,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     () => items.reduce((s, i) => s + i.qty, 0),
     [items]
   );
-  const subtotal = useMemo(
-    () => items.reduce((s, i) => s + i.qty * i.priceNum, 0),
-    [items]
-  );
+  const subtotal = useMemo(() => cartSubtotal(items), [items]);
 
   const value = useMemo(
     () => ({

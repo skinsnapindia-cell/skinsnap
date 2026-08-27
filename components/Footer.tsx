@@ -29,10 +29,10 @@ export default function Footer() {
             SKINSNAP
           </div>
           <div style={{ fontFamily: "var(--font-instrument-serif), serif", fontStyle: "italic", fontSize: 18, color: "#E8CBB2", marginTop: 10 }}>
-            Fresh Clay. Zero Mess.
+            Pure Clay. Freshly Mixed.
           </div>
           <div style={{ fontSize: 13, color: "#9B927F", marginTop: 16, maxWidth: 280, lineHeight: 1.6 }}>
-            Freshly activated natural face packs, engineered for modern skincare.
+            100% natural face-pack powders, mixed fresh at home — engineered for modern skincare.
           </div>
           <div style={{ display: "flex", gap: 14, marginTop: 28 }}>
             <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Instagram" style={socialStyle}>
@@ -70,7 +70,7 @@ export default function Footer() {
         }}
       >
         <div style={{ fontSize: 12, color: "#6B6357" }}>© 2026 SkinSnap. All rights reserved.</div>
-        <div style={{ fontSize: 12, color: "#6B6357" }}>Freshly Activated. Naturally Beautiful.</div>
+        <div style={{ fontSize: 12, color: "#6B6357" }}>Freshly Mixed. Naturally Beautiful.</div>
       </div>
     </footer>
   );

@@ -68,7 +68,7 @@ export default function BlogIndexPage() {
           }}
         >
           Practical, honest answers about clay packs, tan removal and natural
-          skincare — from the people who obsess over fresh activation.
+          skincare — from the people who obsess over fresh, natural ingredients.
         </p>
       </section>
 

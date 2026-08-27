@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import HowItWorksPage from "./HowItWorksPage";
 
 export const metadata: Metadata = {
-  title: "How It Works — Dual-Chamber Face Pack Technology",
+  title: "How It Works — Mixing Your Fresh Face Pack",
   description:
-    "See how SkinSnap's dual-chamber pouch works: press to burst the seal, mix pure rose water into herbal clay, tear and apply. A freshly activated face pack every time — no bowl, no spoon.",
+    "See how SkinSnap works: scoop a spoonful of pure natural powder, mix with water or rose water into a smooth paste, apply, and rinse for a glow. A freshly mixed face pack every time.",
   alternates: { canonical: "/how-it-works" },
   openGraph: {
     url: "/how-it-works",
-    title: "How SkinSnap Works — Dual-Chamber Face Packs",
+    title: "How SkinSnap Works — Freshly Mixed Face Packs",
     description:
-      "Press to burst the seal, mix rose water into herbal clay, tear and apply. Freshly activated every time.",
+      "Scoop, mix with water or rose water, apply and glow. A freshly mixed natural face pack every time.",
   },
 };
 

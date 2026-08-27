@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
-import { formatINR } from "@/lib/format";
+import { formatINR, formatUnitINR } from "@/lib/format";
+import { hasTiers, lineTotal, lineUnitPrice, lineRegularTotal, lineSavings } from "@/lib/pricing";
 import type { Product } from "@/lib/products";
 
 /**
@@ -16,7 +17,21 @@ export default function ProductPouch({ product }: { product: Product }) {
   const { addItem } = useCart();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const isCombo = product.slug === "combo-pack";
+  const useTiers = hasTiers(product);
+  // Price for the card's current quantity. Tiered products use "Buy More, Save
+  // More" totals; others keep flat price × qty with the MRP strike.
+  const offer = lineTotal(product, qty);
+  const regular = useTiers ? lineRegularTotal(product, qty) : product.mrpNum * qty;
+  const savings = useTiers
+    ? lineSavings(product, qty)
+    : Math.max(0, (product.mrpNum - product.priceNum) * qty);
+  // Best-case savings, for the "up to ₹X off" hint on tiered products.
+  const topTier = useTiers
+    ? [...product.pricingTiers!].sort((a, b) => b.qty - a.qty)[0]
+    : null;
+  const maxSavings = topTier ? lineSavings(product, topTier.qty) : 0;
 
   const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
@@ -31,6 +46,7 @@ export default function ProductPouch({ product }: { product: Product }) {
   const onLeave = (e: React.MouseEvent<HTMLDivElement>) => {
     e.currentTarget.style.transform = "translateY(0) rotateX(0) rotateY(0)";
     e.currentTarget.style.boxShadow = "0 14px 30px -22px rgba(38,34,28,0.35)";
+    setHovered(false);
   };
 
   const handleAdd = () => {
@@ -44,6 +60,7 @@ export default function ProductPouch({ product }: { product: Product }) {
     <div className={isCombo ? "combo-wrap" : undefined} style={{ perspective: 1200, height: "100%" }}>
       <div
         className={isCombo ? "combo-card" : undefined}
+        onMouseEnter={() => setHovered(true)}
         onMouseMove={onMove}
         onMouseLeave={onLeave}
         style={{
@@ -82,6 +99,19 @@ export default function ProductPouch({ product }: { product: Product }) {
             sizes="(max-width: 700px) 92vw, 380px"
             style={{ objectFit: "cover" }}
           />
+          {/* second photo, cross-fades in on hover */}
+          <Image
+            src={product.img2}
+            alt=""
+            aria-hidden="true"
+            fill
+            sizes="(max-width: 700px) 92vw, 380px"
+            style={{
+              objectFit: "cover",
+              opacity: hovered ? 1 : 0,
+              transition: "opacity 0.45s ease",
+            }}
+          />
           {isCombo && (
             <>
               <span className="combo-shine" />
@@ -105,7 +135,7 @@ export default function ProductPouch({ product }: { product: Product }) {
                   boxShadow: "0 8px 18px -8px rgba(38,34,28,0.6)",
                 }}
               >
-                <span aria-hidden="true">🎁</span> Combo Offer · ₹99
+                <span aria-hidden="true">🎁</span> Combo Offer · ₹749
               </span>
             </>
           )}
@@ -128,18 +158,27 @@ export default function ProductPouch({ product }: { product: Product }) {
           <div style={{ marginTop: 14 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
               <span style={{ fontSize: 20, fontWeight: 700, color: "#26221C" }}>
-                {formatINR(product.priceNum * qty)}
+                {formatINR(offer)}
               </span>
-              <span style={{ fontSize: 14, color: "#9B8F7C", textDecoration: "line-through" }}>
-                {formatINR(product.mrpNum * qty)}
-              </span>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.02em", color: "#5E7C4E", background: "#EAF1E4", borderRadius: 999, padding: "3px 9px" }}>
-                Save {formatINR((product.mrpNum - product.priceNum) * qty)}
-              </span>
+              {savings > 0 && (
+                <span style={{ fontSize: 14, color: "#9B8F7C", textDecoration: "line-through" }}>
+                  {formatINR(regular)}
+                </span>
+              )}
+              {savings > 0 && (
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.02em", color: "#5E7C4E", background: "#EAF1E4", borderRadius: 999, padding: "3px 9px" }}>
+                  Save {formatINR(savings)}
+                </span>
+              )}
             </div>
             {qty > 1 && (
               <div style={{ fontSize: 12, color: "#9B8F7C", marginTop: 4 }}>
-                {qty} × {formatINR(product.priceNum)}
+                {qty} × {formatUnitINR(lineUnitPrice(product, qty))}
+              </div>
+            )}
+            {useTiers && maxSavings > 0 && (
+              <div style={{ fontSize: 11.5, color: "#8A6A2E", marginTop: 8, lineHeight: 1.5, fontWeight: 600 }}>
+                Buy more, save more — up to {formatINR(maxSavings)} off {topTier!.qty} packs
               </div>
             )}
           </div>

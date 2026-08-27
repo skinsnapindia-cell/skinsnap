@@ -16,7 +16,7 @@ export function organizationJsonLd() {
     url: SITE_URL,
     logo: `${SITE_URL}/apple-icon.png`,
     description:
-      "Freshly activated natural face packs with dual-chamber innovation — pure rose water and herbal clay mixed only when you press.",
+      "100% natural face-pack powders in 50g jars — pure clay and botanicals you mix fresh at home with water or rose water. No preservatives, no chemicals.",
     sameAs: [INSTAGRAM_URL],
     contactPoint: {
       "@type": "ContactPoint",

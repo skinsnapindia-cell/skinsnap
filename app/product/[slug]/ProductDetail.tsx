@@ -11,22 +11,23 @@ import ProductPouch from "@/components/ProductPouch";
 import { useReveals } from "@/lib/useReveals";
 import { useCart } from "@/context/CartContext";
 import { fbqTrack } from "@/lib/fbpixel";
-import { formatINR } from "@/lib/format";
+import { formatINR, formatUnitINR } from "@/lib/format";
+import { hasTiers, lineTotal, lineUnitPrice, lineRegularTotal, lineSavings, type PricingTier } from "@/lib/pricing";
 import { productDisplayName, type Product } from "@/lib/products";
 
 const reviews = [
   {
-    text: '"The freshest my clay mask has ever felt. Genuinely no mess — I use it on flights now."',
+    text: '"The freshest my clay mask has ever felt. Mixing a spoonful takes seconds and the paste is so smooth."',
     name: "Priya M.",
     meta: "Verified · Combination skin",
   },
   {
-    text: '"I was skeptical about the press-to-mix, but it works perfectly every time. Feels so premium."',
+    text: '"I was skeptical about mixing it myself, but it takes seconds and feels so much fresher than tube masks."',
     name: "Daniel R.",
     meta: "Verified · Oily skin",
   },
   {
-    text: '"Skincare that fits in my clutch. The cream comes out silky and cool. Obsessed."',
+    text: '"One jar lasts me ages and every pack is freshly mixed. Goes on silky and cool. Obsessed."',
     name: "Sofia L.",
     meta: "Verified · Normal skin",
   },
@@ -42,7 +43,7 @@ const benefits = [
   {
     n: "03",
     t: "Soothe & tone",
-    d: "Rose water calms and refreshes the skin.",
+    d: "Natural clay and botanicals calm and refresh the skin.",
   },
   { n: "04", t: "Natural glow", d: "Reveals brighter, smoother-looking skin." },
 ];
@@ -50,23 +51,23 @@ const benefits = [
 const usage = [
   {
     n: "01",
-    t: "Press the rose water chamber",
-    d: 'Find the "PRESS HERE →" mark and apply firm, even pressure.',
+    t: "Scoop the powder",
+    d: "Add 1–2 teaspoons of powder to a small bowl.",
   },
   {
     n: "02",
-    t: "Massage 10–15 seconds",
-    d: "The seal bursts and the ingredients blend into a smooth cream.",
+    t: "Mix into a paste",
+    d: "Add a little water or rose water and stir into a smooth paste.",
   },
   {
     n: "03",
-    t: "Tear & apply",
-    d: "Open the corner and spread evenly across clean skin.",
+    t: "Apply",
+    d: "Spread an even layer over clean, dry skin.",
   },
   {
     n: "04",
     t: "Rest, then rinse",
-    d: "Leave 10 minutes, rinse with warm water, and glow.",
+    d: "Leave 10–15 minutes, rinse with warm water, and glow.",
   },
 ];
 
@@ -75,8 +76,6 @@ const Star = ({ size = 17 }: { size?: number }) => (
     <path d="M12 2l2.9 6.2 6.6.8-4.9 4.5 1.3 6.6L12 17.8 6.1 20.7l1.3-6.6L2.5 9l6.6-.8z" />
   </svg>
 );
-
-type View = "front" | "transparent" | "back";
 
 export default function ProductDetail({
   product,
@@ -88,7 +87,7 @@ export default function ProductDetail({
   const scopeRef = useRef<HTMLDivElement>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
-  const [view, setView] = useState<View>("front");
+  const [active, setActive] = useState(0);
   const [qty, setQty] = useState(1);
   const { addItem, buyNow } = useCart();
 
@@ -132,6 +131,20 @@ export default function ProductDetail({
     return () => ctx.revert();
   }, []);
 
+  const isCombo = product.slug === "combo-pack";
+  const useTiers = hasTiers(product);
+  // Line pricing for the selected quantity. Tiered products get "Buy More,
+  // Save More" totals; others keep flat price × qty with the MRP strike.
+  const offerTotal = lineTotal(product, qty);
+  const unit = lineUnitPrice(product, qty);
+  const regularTotal = useTiers
+    ? lineRegularTotal(product, qty)
+    : product.mrpNum * qty;
+  const savingsTotal = useTiers
+    ? lineSavings(product, qty)
+    : Math.max(0, (product.mrpNum - product.priceNum) * qty);
+  const galleryImages = [product.img, product.img2];
+
   const buy = () => buyNow(product, qty);
   const [added, setAdded] = useState(false);
   const addToCart = () => {
@@ -139,21 +152,6 @@ export default function ProductDetail({
     setAdded(true);
     setTimeout(() => setAdded(false), 1400);
   };
-
-  const toneBtn = (k: View) =>
-    ({
-      flex: 1,
-      background: view === k ? "#26221C" : "transparent",
-      border: `1px solid ${view === k ? "#26221C" : "#D7CCBB"}`,
-      borderRadius: 16,
-      padding: 16,
-      cursor: "pointer",
-      fontFamily: "var(--font-manrope), sans-serif",
-      fontSize: 12,
-      fontWeight: 700,
-      letterSpacing: "1px",
-      color: view === k ? "#F6F1E9" : "#6B6357",
-    }) as React.CSSProperties;
 
   return (
     <div className="wrap" ref={scopeRef}>
@@ -204,257 +202,54 @@ export default function ProductDetail({
                   minHeight: 440,
                 }}
               >
-                {view === "front" && (
-                  <Image
-                    src={product.img}
-                    alt={productDisplayName(product)}
-                    priority
-                    sizes="(max-width: 900px) 92vw, 640px"
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                      borderRadius: 16,
-                      display: "block",
-                      filter: "drop-shadow(0 30px 40px rgba(120,80,60,0.18))",
-                    }}
-                  />
-                )}
-                {view === "transparent" && (
-                  <svg
-                    width="100%"
-                    viewBox="0 0 480 320"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <rect
-                      x="30"
-                      y="40"
-                      width="420"
-                      height="230"
-                      rx="22"
-                      fill="none"
-                      stroke="#B79B78"
-                      strokeWidth="1.6"
-                      strokeDasharray="4 4"
-                    />
-                    <line
-                      x1="240"
-                      y1="54"
-                      x2="240"
-                      y2="256"
-                      stroke="#B08A55"
-                      strokeWidth="2"
-                      strokeDasharray="2 6"
-                    />
-                    <path
-                      d="M46 190 Q 140 168 234 190 L234 258 L46 258 Z"
-                      fill="#B97C79"
-                      opacity="0.35"
-                    />
-                    <line
-                      x1="46"
-                      y1="190"
-                      x2="234"
-                      y2="190"
-                      stroke="#B97C79"
-                      strokeWidth="1"
-                      strokeDasharray="3 3"
-                    />
-                    <g opacity="0.6" fill="#C17A50">
-                      <circle cx="300" cy="200" r="5" />
-                      <circle cx="330" cy="215" r="4" />
-                      <circle cx="360" cy="200" r="5" />
-                      <circle cx="390" cy="220" r="4" />
-                      <circle cx="320" cy="235" r="4" />
-                      <circle cx="370" cy="240" r="4" />
-                    </g>
-                    <text
-                      x="135"
-                      y="290"
-                      textAnchor="middle"
-                      fontFamily="Manrope"
-                      fontSize="9"
-                      fontWeight="700"
-                      letterSpacing="1.5"
-                      fill="#B97C79"
-                    >
-                      ROSE WATER
-                    </text>
-                    <text
-                      x="345"
-                      y="290"
-                      textAnchor="middle"
-                      fontFamily="Manrope"
-                      fontSize="9"
-                      fontWeight="700"
-                      letterSpacing="1.5"
-                      fill="#A15E38"
-                    >
-                      {product.activeLabel}
-                    </text>
-                  </svg>
-                )}
-                {view === "back" && (
-                  <svg
-                    width="100%"
-                    viewBox="0 0 480 320"
-                    xmlns="http://www.w3.org/2000/svg"
-                    style={{
-                      filter: "drop-shadow(0 30px 40px rgba(120,80,60,0.15))",
-                    }}
-                  >
-                    <rect
-                      x="30"
-                      y="40"
-                      width="420"
-                      height="230"
-                      rx="22"
-                      fill="#FCFAF5"
-                      stroke="#DAD0C0"
-                      strokeWidth="2"
-                    />
-                    <text
-                      x="240"
-                      y="80"
-                      textAnchor="middle"
-                      fontFamily="Manrope"
-                      fontSize="9"
-                      fontWeight="700"
-                      letterSpacing="2"
-                      fill="#6B6357"
-                    >
-                      HOW IT WORKS
-                    </text>
-                    <g fontFamily="Manrope">
-                      <g transform="translate(95,140)">
-                        <circle
-                          r="26"
-                          fill="none"
-                          stroke="#DAD0C0"
-                          strokeWidth="1.4"
-                        />
-                        <path
-                          d="M0 -10 L0 8 M-7 1 L0 8 L7 1"
-                          stroke="#B97C79"
-                          strokeWidth="2"
-                          fill="none"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <text
-                          y="44"
-                          textAnchor="middle"
-                          fontSize="8"
-                          fontWeight="700"
-                          fill="#26221C"
-                        >
-                          PRESS
-                        </text>
-                      </g>
-                      <g transform="translate(190,140)">
-                        <circle
-                          r="26"
-                          fill="none"
-                          stroke="#DAD0C0"
-                          strokeWidth="1.4"
-                        />
-                        <path
-                          d="M-8 -10 L2 -1 L-4 4 L8 12"
-                          stroke="#B08A55"
-                          strokeWidth="2"
-                          fill="none"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <text
-                          y="44"
-                          textAnchor="middle"
-                          fontSize="8"
-                          fontWeight="700"
-                          fill="#26221C"
-                        >
-                          BURST
-                        </text>
-                      </g>
-                      <g transform="translate(285,140)">
-                        <circle
-                          r="26"
-                          fill="none"
-                          stroke="#DAD0C0"
-                          strokeWidth="1.4"
-                        />
-                        <path
-                          d="M-10 5 A 11 11 0 1 1 10 5"
-                          stroke="#A15E38"
-                          strokeWidth="2"
-                          fill="none"
-                          strokeLinecap="round"
-                        />
-                        <text
-                          y="44"
-                          textAnchor="middle"
-                          fontSize="8"
-                          fontWeight="700"
-                          fill="#26221C"
-                        >
-                          MIX
-                        </text>
-                      </g>
-                      <g transform="translate(380,140)">
-                        <circle
-                          r="26"
-                          fill="none"
-                          stroke="#DAD0C0"
-                          strokeWidth="1.4"
-                        />
-                        <circle r="6" fill="#E8CBB2" />
-                        <path
-                          d="M0 -14 L0 -10 M14 0 L10 0 M0 14 L0 10 M-14 0 L-10 0"
-                          stroke="#B08A55"
-                          strokeWidth="1.6"
-                          strokeLinecap="round"
-                        />
-                        <text
-                          y="44"
-                          textAnchor="middle"
-                          fontSize="8"
-                          fontWeight="700"
-                          fill="#26221C"
-                        >
-                          GLOW
-                        </text>
-                      </g>
-                    </g>
-                    <text
-                      x="240"
-                      y="235"
-                      textAnchor="middle"
-                      fontFamily="Manrope"
-                      fontSize="9"
-                      fontWeight="600"
-                      letterSpacing="1"
-                      fill="#6B6357"
-                    >
-                      100% NATURAL · SINGLE USE · NO WATER NEEDED
-                    </text>
-                  </svg>
-                )}
+                <Image
+                  key={active}
+                  src={galleryImages[active]}
+                  alt={`${productDisplayName(product)} — photo ${active + 1}`}
+                  priority
+                  sizes="(max-width: 900px) 92vw, 640px"
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    borderRadius: 16,
+                    display: "block",
+                    filter: "drop-shadow(0 30px 40px rgba(120,80,60,0.18))",
+                  }}
+                />
               </div>
               <div style={{ display: "flex", gap: 14, marginTop: 18 }}>
-                <button
-                  onClick={() => setView("front")}
-                  style={toneBtn("front")}
-                >
-                  FRONT
-                </button>
-                <button
-                  onClick={() => setView("transparent")}
-                  style={toneBtn("transparent")}
-                >
-                  INSIDE
-                </button>
-                <button onClick={() => setView("back")} style={toneBtn("back")}>
-                  BACK
-                </button>
+                {galleryImages.map((image, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setActive(i)}
+                    onMouseEnter={() => setActive(i)}
+                    aria-label={`Show photo ${i + 1} of ${productDisplayName(product)}`}
+                    aria-pressed={active === i}
+                    style={{
+                      position: "relative",
+                      flex: "0 0 auto",
+                      width: 96,
+                      aspectRatio: "3 / 2",
+                      padding: 0,
+                      borderRadius: 16,
+                      overflow: "hidden",
+                      cursor: "pointer",
+                      background: "#F3ECDF",
+                      border: `2px solid ${active === i ? "#26221C" : "#E0D6C6"}`,
+                      opacity: active === i ? 1 : 0.72,
+                      transition: "border-color 0.25s ease, opacity 0.25s ease",
+                    }}
+                  >
+                    <Image
+                      src={image}
+                      alt=""
+                      fill
+                      sizes="96px"
+                      style={{ objectFit: "cover" }}
+                    />
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -506,35 +301,50 @@ export default function ProductDetail({
                   }}
                 >
                   <span style={{ fontSize: 30, fontWeight: 700 }}>
-                    {formatINR(product.priceNum * qty)}
+                    {formatINR(offerTotal)}
                   </span>
-                  <span
-                    style={{
-                      fontSize: 18,
-                      color: "#9B8F7C",
-                      textDecoration: "line-through",
-                    }}
-                  >
-                    {formatINR(product.mrpNum * qty)}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: "#5E7C4E",
-                      background: "#EAF1E4",
-                      borderRadius: 999,
-                      padding: "4px 11px",
-                    }}
-                  >
-                    Save {formatINR((product.mrpNum - product.priceNum) * qty)}
-                  </span>
+                  {savingsTotal > 0 && (
+                    <span
+                      style={{
+                        fontSize: 18,
+                        color: "#9B8F7C",
+                        textDecoration: "line-through",
+                      }}
+                    >
+                      {formatINR(regularTotal)}
+                    </span>
+                  )}
+                  {savingsTotal > 0 && (
+                    <span
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: "#5E7C4E",
+                        background: "#EAF1E4",
+                        borderRadius: 999,
+                        padding: "4px 11px",
+                      }}
+                    >
+                      Save {formatINR(savingsTotal)}
+                    </span>
+                  )}
                 </div>
                 <span
                   style={{ fontSize: 14, fontWeight: 500, color: "#9B8F7C" }}
                 >
-                  {qty > 1 ? `for ${qty} pouches` : "/ single-use pouch"}
+                  {isCombo
+                    ? "/ 4-jar combo box"
+                    : qty > 1
+                      ? `${qty} jars · ${formatUnitINR(unit)} each`
+                      : "/ 50g jar"}
                 </span>
+                {useTiers && (
+                  <PackSelector
+                    tiers={product.pricingTiers!}
+                    selected={qty}
+                    onSelect={setQty}
+                  />
+                )}
               </div>
 
               <div
@@ -695,7 +505,7 @@ export default function ProductDetail({
             className="section-title h-lg"
             style={{ fontSize: 44, margin: "14px 0 56px", textAlign: "center" }}
           >
-            Two, and only two.
+            What&apos;s inside.
           </h2>
           <div className="grid-2" style={{ gap: 28 }}>
             {product.ingredients.map((ing) => (
@@ -957,7 +767,7 @@ export default function ProductDetail({
                 {productDisplayName(product)}
               </div>
               <div style={{ fontSize: 13, color: "#6B6357" }}>
-                {product.price} / pouch
+                {formatUnitINR(unit)} / jar
               </div>
             </div>
           </div>
@@ -1022,6 +832,137 @@ export default function ProductDetail({
           }
         }
       `}</style>
+    </div>
+  );
+}
+
+/**
+ * "Buy More, Save More" pack selector. Renders one row per configured tier;
+ * selecting a row sets the product quantity. Savings are computed from the
+ * tiers themselves (single-unit price × qty − offer total), so the UI stays
+ * fully driven by the product's `pricingTiers` config.
+ */
+function PackSelector({
+  tiers,
+  selected,
+  onSelect,
+}: {
+  tiers: PricingTier[];
+  selected: number;
+  onSelect: (qty: number) => void;
+}) {
+  const sorted = [...tiers].sort((a, b) => a.qty - b.qty);
+  const singleUnit =
+    sorted.find((t) => t.qty === 1)?.total ?? sorted[0].total / sorted[0].qty;
+
+  return (
+    <div style={{ marginTop: 18 }}>
+      <div
+        style={{
+          fontSize: 11,
+          fontWeight: 700,
+          letterSpacing: "0.14em",
+          textTransform: "uppercase",
+          color: "#A15E38",
+          marginBottom: 12,
+        }}
+      >
+        Buy More, Save More
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {sorted.map((t) => {
+          const on = selected === t.qty;
+          const savings = Math.max(0, Math.round(singleUnit * t.qty - t.total));
+          return (
+            <button
+              key={t.qty}
+              type="button"
+              onClick={() => onSelect(t.qty)}
+              aria-pressed={on}
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                width: "100%",
+                textAlign: "left",
+                cursor: "pointer",
+                borderRadius: 16,
+                padding: "14px 16px",
+                background: on ? "#FBF3EA" : "#FCFAF5",
+                border: `2px solid ${on ? "#A15E38" : "#EAE0D0"}`,
+                fontFamily: "var(--font-manrope), sans-serif",
+                transition: "border-color 0.2s ease, background 0.2s ease",
+              }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+                <span
+                  style={{
+                    width: 18,
+                    height: 18,
+                    borderRadius: "50%",
+                    flexShrink: 0,
+                    border: `2px solid ${on ? "#A15E38" : "#C9BCA6"}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {on && (
+                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#A15E38" }} />
+                  )}
+                </span>
+                <span>
+                  <span style={{ fontWeight: 700, fontSize: 15, color: "#26221C" }}>
+                    {t.qty} Pack{t.qty > 1 ? "s" : ""}
+                  </span>
+                  <span style={{ display: "block", fontSize: 12, color: "#9B8F7C", marginTop: 2 }}>
+                    {formatUnitINR(t.total / t.qty)} / jar
+                  </span>
+                </span>
+              </span>
+              <span
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-end",
+                  gap: 3,
+                  flexShrink: 0,
+                }}
+              >
+                <span style={{ fontWeight: 700, fontSize: 16, color: "#26221C" }}>
+                  {formatINR(t.total)}
+                </span>
+                {savings > 0 && (
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#5E7C4E" }}>
+                    Save {formatINR(savings)}
+                  </span>
+                )}
+              </span>
+              {t.popular && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: -9,
+                    right: 14,
+                    background: "#26221C",
+                    color: "#F6F1E9",
+                    fontSize: 10,
+                    fontWeight: 800,
+                    letterSpacing: "0.05em",
+                    textTransform: "uppercase",
+                    padding: "3px 9px",
+                    borderRadius: 999,
+                  }}
+                >
+                  Most Popular
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

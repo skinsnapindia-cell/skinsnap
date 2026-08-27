@@ -13,8 +13,13 @@ export type SavedOrderItem = {
   slug?: string;
   title: string;
   qty: number;
+  /** per-unit price actually charged (may be fractional under tier pricing) */
   priceEach?: number;
   lineTotal?: string;
+  /** undiscounted per-unit price — snapshot of the regular price at order time */
+  regularEach?: number;
+  /** discount applied to this line at order time */
+  savings?: number;
 };
 
 export type NewOrder = {

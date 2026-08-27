@@ -145,12 +145,37 @@ export default function HomePage() {
 
       {/* HERO */}
       <section ref={heroRef} className="home-hero">
+        {/* full-bleed product slider as the header background */}
+        <div ref={pouchRef} className="home-hero__bg">
+          {products.map((p, i) => (
+            <Image
+              key={p.slug}
+              src={p.img}
+              alt={`${p.title} Face Pack`}
+              fill
+              priority={i === 0}
+              sizes="100vw"
+              style={{
+                objectFit: "cover",
+                opacity: i === slide ? 1 : 0,
+                transition: "opacity 1s ease",
+                willChange: "opacity",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* white blend so the left-side copy stays readable over the image */}
+        <div className="home-hero__scrim" />
+
+        {/* drifting petals + clay particles */}
         <div
           ref={petalsRef}
+          className="home-hero__petals"
           style={{
             position: "absolute",
             inset: 0,
-            zIndex: 0,
+            zIndex: 1,
             pointerEvents: "none",
             overflow: "hidden",
           }}
@@ -168,12 +193,12 @@ export default function HomePage() {
               color: "#A15E38",
             }}
           >
-            Freshly Activated · 100% Natural
+            100% Natural · Freshly Mixed
           </div>
           <h1 data-hero className="home-hero__title">
-            Fresh Clay.
+            Pure Clay.
             <br />
-            <em style={{ color: "#B97C79" }}>Zero Mess.</em>
+            <em style={{ color: "#B97C79" }}>Freshly Mixed.</em>
           </h1>
           <p
             data-hero
@@ -185,7 +210,8 @@ export default function HomePage() {
               lineHeight: 1.6,
             }}
           >
-            Freshly Activated Natural Face Packs, designed for modern skincare.
+            100% natural face-pack powders in a 50g jar — mixed fresh at home,
+            designed for modern skincare.
           </p>
           <div
             data-hero
@@ -243,65 +269,28 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* slider panel */}
-        <div className="home-hero__slider">
-          <div
-            ref={pouchRef}
-            style={{
-              position: "relative",
-              aspectRatio: "3 / 2",
-              WebkitMaskImage:
-                "radial-gradient(ellipse 82% 82% at 50% 50%, #000 46%, rgba(0,0,0,0.35) 74%, transparent 100%)",
-              maskImage:
-                "radial-gradient(ellipse 82% 82% at 50% 50%, #000 46%, rgba(0,0,0,0.35) 74%, transparent 100%)",
-            }}
-          >
-            {products.map((p, i) => (
-              <Image
-                key={p.slug}
-                src={p.img}
-                alt={`${p.title} Face Pack`}
-                fill
-                priority={i === 0}
-                sizes="(max-width: 900px) 92vw, 560px"
-                style={{
-                  objectFit: "cover",
-                  opacity: i === slide ? 1 : 0,
-                  transition: "opacity 1s ease",
-                  willChange: "opacity",
-                }}
-              />
-            ))}
-          </div>
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              justifyContent: "center",
-              marginTop: 22,
-            }}
-          >
-            {products.map((p, i) => (
-              <button
-                key={p.slug}
-                aria-label={`Go to slide ${i + 1}`}
-                onClick={() => {
-                  setSlide(i);
-                  restart();
-                }}
-                style={{
-                  width: i === slide ? 26 : 8,
-                  height: 8,
-                  borderRadius: 999,
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 0,
-                  background: i === slide ? "#A15E38" : "rgba(38,34,28,0.22)",
-                  transition: "background 0.4s ease, width 0.4s ease",
-                }}
-              />
-            ))}
-          </div>
+        {/* slide dots */}
+        <div className="home-hero__dots">
+          {products.map((p, i) => (
+            <button
+              key={p.slug}
+              aria-label={`Go to slide ${i + 1}`}
+              onClick={() => {
+                setSlide(i);
+                restart();
+              }}
+              style={{
+                width: i === slide ? 26 : 8,
+                height: 8,
+                borderRadius: 999,
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                background: i === slide ? "#A15E38" : "rgba(38,34,28,0.3)",
+                transition: "background 0.4s ease, width 0.4s ease",
+              }}
+            />
+          ))}
         </div>
       </section>
 
@@ -338,8 +327,8 @@ export default function HomePage() {
                 lineHeight: 1.6,
               }}
             >
-              Every pouch shares the same dual-chamber innovation — activated
-              fresh, the moment you need it.
+              Every jar is the same pure, natural powder — mixed fresh, the
+              moment you need it.
             </p>
           </div>
           <div
@@ -367,11 +356,11 @@ export default function HomePage() {
         <div
           className="innovation-grid"
           style={{
-            maxWidth: 1100,
+            maxWidth: 720,
             margin: "0 auto",
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 70,
+            gridTemplateColumns: "1fr",
+            gap: 0,
             alignItems: "center",
           }}
         >
@@ -385,15 +374,15 @@ export default function HomePage() {
                 color: "#E8CBB2",
               }}
             >
-              The Innovation
+              The Idea
             </div>
             <h2
               className="section-title h-lg"
               style={{ fontSize: 48, margin: "16px 0 20px", lineHeight: 1.1 }}
             >
-              Two ingredients.
+              Pure powder.
               <br />
-              One perfect press.
+              Mixed fresh by you.
             </h2>
             <p
               style={{
@@ -403,9 +392,9 @@ export default function HomePage() {
                 marginBottom: 32,
               }}
             >
-              A frangible burst seal keeps rose water and clay apart until the
-              moment you press. No bowl, no spoon, no mess — just a freshly
-              activated face pack, every single time.
+              50g of pure, natural face-pack powder in every jar — no
+              preservatives, no chemicals. Scoop a spoonful, mix with water or
+              rose water, and apply a freshly mixed face pack every single time.
             </p>
             <Link
               href="/how-it-works"
@@ -430,88 +419,6 @@ export default function HomePage() {
             >
               See how it works →
             </Link>
-          </div>
-          <div
-            data-reveal
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <svg
-              width="100%"
-              viewBox="0 0 420 260"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect
-                x="30"
-                y="50"
-                width="360"
-                height="160"
-                rx="22"
-                fill="#2C2620"
-                stroke="#4A4238"
-                strokeWidth="1.5"
-              />
-              <line
-                x1="210"
-                y1="66"
-                x2="210"
-                y2="194"
-                stroke="#B08A55"
-                strokeWidth="2"
-                strokeDasharray="3 7"
-              />
-              <ellipse
-                cx="120"
-                cy="130"
-                rx="60"
-                ry="40"
-                fill="#B97C79"
-                opacity="0.55"
-              />
-              <circle cx="280" cy="120" r="6" fill="#E8CBB2" />
-              <circle cx="300" cy="135" r="5" fill="#E8CBB2" />
-              <circle cx="290" cy="150" r="4" fill="#E8CBB2" />
-              <circle cx="315" cy="122" r="4" fill="#E8CBB2" />
-              <text
-                x="120"
-                y="180"
-                textAnchor="middle"
-                fontFamily="Manrope"
-                fontSize="10"
-                fontWeight="700"
-                letterSpacing="1.5"
-                fill="#F2DEDC"
-              >
-                ROSE WATER
-              </text>
-              <text
-                x="300"
-                y="180"
-                textAnchor="middle"
-                fontFamily="Manrope"
-                fontSize="10"
-                fontWeight="700"
-                letterSpacing="1.5"
-                fill="#E8CBB2"
-              >
-                CLAY
-              </text>
-              <text
-                x="210"
-                y="234"
-                textAnchor="middle"
-                fontFamily="Manrope"
-                fontSize="9"
-                fontWeight="700"
-                letterSpacing="2"
-                fill="#B08A55"
-              >
-                FRANGIBLE BURST SEAL
-              </text>
-            </svg>
           </div>
         </div>
       </section>
