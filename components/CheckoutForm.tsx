@@ -228,71 +228,153 @@ export default function CheckoutForm({
     return Object.keys(e).length === 0;
   };
 
+  // Inject the Razorpay Checkout SDK once; resolves when window.Razorpay exists.
+  const loadRazorpay = () =>
+    new Promise<boolean>((resolve) => {
+      if (typeof window === "undefined") return resolve(false);
+      if (window.Razorpay) return resolve(true);
+      const s = document.createElement("script");
+      s.src = "https://checkout.razorpay.com/v1/checkout.js";
+      s.onload = () => resolve(true);
+      s.onerror = () => resolve(false);
+      document.body.appendChild(s);
+    });
+
+  // Place the order on our backend (saves + emails). For prepaid, passes the
+  // verified Razorpay payment so the server can validate the signature.
+  const placeOrder = async (razorpay?: {
+    orderId: string;
+    paymentId: string;
+    signature: string;
+  }) => {
+    const line = [flat.trim(), street.trim(), area.trim()].filter(Boolean).join(", ");
+    const res = await fetch("/api/order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: name.trim(),
+        email: email.trim(),
+        phone: `+91${phone}`,
+        address: {
+          flat: flat.trim(),
+          street: street.trim(),
+          area: area.trim(),
+          line,
+          city: city.trim(),
+          state: stateRegion.trim(),
+          pincode,
+        },
+        payment: isPrepaid ? "Prepaid (Pay Online)" : "Cash on Delivery",
+        // Prepaid ships free; the server enforces this (never trusts the client).
+        prepaid: isPrepaid,
+        razorpay: razorpay ?? null,
+        // Only slug + qty are authoritative — the server recomputes every price
+        // from the catalog. title is sent for logging/fallback only.
+        items: items.map((i) => ({ slug: i.slug, title: i.title, qty: i.qty })),
+        subtotalNum: subtotal,
+        // the raw COD courier quote; server zeroes it for prepaid orders
+        shippingNum: shipping.status === "ok" ? codShippingRate : null,
+        shippingCourier: shipping.status === "ok" ? shipping.courier : null,
+        totalNum: grandTotal,
+        total: formatINR(grandTotal),
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.error || "Could not place your order.");
+
+    fbqTrack(
+      "Purchase",
+      {
+        content_ids: items.map((i) => i.slug),
+        content_type: "product",
+        num_items: count,
+        value: grandTotal,
+        currency: "INR",
+      },
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random()}`
+    );
+
+    setReceipt({ email: email.trim(), count, orderNumber: data?.orderNumber || "" });
+    setStatus("done");
+    clearCart();
+  };
+
   const submit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     if (!validate()) return;
     setStatus("sending");
     setErrorMsg("");
 
-    // full address line for the email + shipment
-    const line = [flat.trim(), street.trim(), area.trim()].filter(Boolean).join(", ");
+    // Cash on Delivery — place the order directly, no payment step.
+    if (!isPrepaid) {
+      try {
+        await placeOrder();
+      } catch (err) {
+        setErrorMsg(err instanceof Error ? err.message : "Something went wrong.");
+        setStatus("error");
+      }
+      return;
+    }
 
+    // Prepaid — create a Razorpay order, collect payment, then place the order.
     try {
-      const res = await fetch("/api/order", {
+      const orderRes = await fetch("/api/razorpay/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          phone: `+91${phone}`,
-          address: {
-            flat: flat.trim(),
-            street: street.trim(),
-            area: area.trim(),
-            line,
-            city: city.trim(),
-            state: stateRegion.trim(),
-            pincode,
-          },
-          payment: isPrepaid ? "Prepaid (Pay Online)" : "Cash on Delivery",
-          // Prepaid ships free; the server enforces this (never trusts the
-          // client), so we just declare which mode was chosen.
-          prepaid: isPrepaid,
-          // Only slug + qty are authoritative — the server recomputes every
-          // price from the catalog. title is sent for logging/fallback only.
-          items: items.map((i) => ({
-            slug: i.slug,
-            title: i.title,
-            qty: i.qty,
-          })),
-          subtotalNum: subtotal,
-          // the raw COD courier quote; server zeroes it for prepaid orders
-          shippingNum: shipping.status === "ok" ? codShippingRate : null,
-          shippingCourier: shipping.status === "ok" ? shipping.courier : null,
-          totalNum: grandTotal,
-          total: formatINR(grandTotal),
-        }),
+        body: JSON.stringify({ items: items.map((i) => ({ slug: i.slug, qty: i.qty })) }),
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || "Could not place your order.");
+      const order = await orderRes.json().catch(() => ({}));
+      if (!orderRes.ok || !order?.orderId) {
+        throw new Error(order?.error || "Could not start the payment.");
+      }
 
-      fbqTrack(
-        "Purchase",
-        {
-          content_ids: items.map((i) => i.slug),
-          content_type: "product",
-          num_items: count,
-          value: grandTotal,
-          currency: "INR",
+      const loaded = await loadRazorpay();
+      if (!loaded || !window.Razorpay) {
+        throw new Error("Couldn't load the payment window. Check your connection and try again.");
+      }
+
+      const rzp = new window.Razorpay({
+        key: order.keyId,
+        order_id: order.orderId,
+        amount: order.amount,
+        currency: order.currency,
+        name: "SkinSnap",
+        description: "Freshly mixed natural face packs",
+        prefill: { name: name.trim(), email: email.trim(), contact: phone },
+        theme: { color: "#26221C" },
+        handler: async (resp: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) => {
+          setStatus("sending");
+          try {
+            await placeOrder({
+              orderId: resp.razorpay_order_id,
+              paymentId: resp.razorpay_payment_id,
+              signature: resp.razorpay_signature,
+            });
+          } catch (err) {
+            setErrorMsg(
+              err instanceof Error
+                ? err.message
+                : "Payment succeeded but we couldn't confirm your order. Please contact support."
+            );
+            setStatus("error");
+          }
         },
-        typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? crypto.randomUUID()
-          : `${Date.now()}-${Math.random()}`
-      );
-
-      setReceipt({ email: email.trim(), count, orderNumber: data?.orderNumber || "" });
-      setStatus("done");
-      clearCart();
+        modal: {
+          // customer closed the payment window without paying
+          ondismiss: () => setStatus("form"),
+        },
+      } as Record<string, unknown>);
+      rzp.on("payment.failed", () => {
+        setErrorMsg("Payment failed or was cancelled. Please try again.");
+        setStatus("error");
+      });
+      rzp.open();
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong.");
       setStatus("error");
@@ -524,11 +606,19 @@ export default function CheckoutForm({
         <div style={{ marginTop: 14, fontSize: 13, color: "#B4483F", lineHeight: 1.5 }}>{errorMsg}</div>
       )}
       <button type="submit" disabled={status === "sending"} style={{ ...primaryBtn, marginTop: 16, opacity: status === "sending" ? 0.7 : 1, cursor: status === "sending" ? "default" : "pointer" }} onMouseEnter={(e) => { if (status !== "sending") e.currentTarget.style.background = "#A15E38"; }} onMouseLeave={(e) => (e.currentTarget.style.background = "#26221C")}>
-        {status === "sending" ? "Placing Pre-order…" : `Complete Pre-Order · ${formatINR(grandTotal)}`}
+        {status === "sending"
+          ? isPrepaid
+            ? "Opening payment…"
+            : "Placing order…"
+          : isPrepaid
+            ? `Pay ${formatINR(grandTotal)} securely`
+            : `Place Order · ${formatINR(grandTotal)}`}
       </button>
       <p style={{ fontSize: 11.5, color: "#9B8F7C", textAlign: "center", marginTop: 14, lineHeight: 1.5 }}>
-        We&apos;ll email your pre-order booking confirmation.{" "}
-        {isPrepaid ? "Prepaid orders ship free — we'll share payment details with your confirmation." : "Pay the total above in cash on delivery, including shipping."}
+        We&apos;ll email your order confirmation.{" "}
+        {isPrepaid
+          ? "You'll pay securely via Razorpay (UPI, cards, netbanking) — prepaid orders ship free."
+          : "Pay the total above in cash on delivery, including shipping."}
       </p>
     </>
   );

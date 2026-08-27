@@ -40,6 +40,10 @@ create table if not exists public.orders (
   payment_method text,
   shipping_courier text,
 
+  -- online payment (Razorpay). null for COD orders.
+  payment_id text,                            -- razorpay_payment_id once paid
+  payment_status text,                        -- 'paid' (prepaid) | 'cod'
+
   -- fulfilment tracking
   email_sent boolean not null default false,
   shiprocket_order_id text,

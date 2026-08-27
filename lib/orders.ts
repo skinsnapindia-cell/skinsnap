@@ -42,6 +42,12 @@ export type NewOrder = {
   total: number;
   paymentMethod: string;
   shippingCourier?: string | null;
+  /** order lifecycle status; defaults to 'pre_order' */
+  status?: string;
+  /** razorpay_payment_id for prepaid orders, null for COD */
+  paymentId?: string | null;
+  /** 'paid' (prepaid) | 'cod' */
+  paymentStatus?: string | null;
 };
 
 /** Order reference shared across the DB, the email and Shiprocket, e.g. SS-260717-A3F9. */
@@ -65,7 +71,9 @@ export async function saveOrder(order: NewOrder): Promise<string | null> {
     .from("orders")
     .insert({
       order_number: order.orderNumber,
-      status: "pre_order",
+      status: order.status ?? "pre_order",
+      payment_id: order.paymentId ?? null,
+      payment_status: order.paymentStatus ?? null,
       customer_name: order.name,
       email: order.email,
       phone: order.phone ?? null,

@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { getProduct, productDisplayName } from "@/lib/products";
 import { generateOrderNumber, markEmailSent, saveOrder } from "@/lib/orders";
 import { resolveOrderPricing } from "@/lib/orderPricing";
+import { isRazorpayConfigured, verifyPaymentSignature } from "@/lib/razorpay";
 import { formatINR } from "@/lib/format";
 
 /**
@@ -66,6 +67,8 @@ export async function POST(req: Request) {
     payment?: string;
     /** true = pay online (prepaid) → ships free; false/undefined = COD */
     prepaid?: boolean;
+    /** Razorpay success payload, present for prepaid orders */
+    razorpay?: { orderId?: string; paymentId?: string; signature?: string } | null;
     items?: OrderItem[];
     total?: string;
     subtotalNum?: number;
@@ -87,6 +90,7 @@ export async function POST(req: Request) {
     address,
     payment,
     prepaid,
+    razorpay,
     items,
     total,
     subtotalNum,
@@ -124,6 +128,33 @@ export async function POST(req: Request) {
 
   // Prepaid orders always ship free — enforced here, never trusting the client.
   const isPrepaid = prepaid === true;
+
+  // A prepaid order is only accepted once its Razorpay payment signature is
+  // verified server-side. Never trust a "paid" claim from the browser.
+  if (isPrepaid) {
+    if (!isRazorpayConfigured()) {
+      return NextResponse.json(
+        { error: "Online payment isn't configured. Please choose Cash on Delivery." },
+        { status: 500 }
+      );
+    }
+    const rp = razorpay || {};
+    const verified = verifyPaymentSignature({
+      orderId: rp.orderId ?? "",
+      paymentId: rp.paymentId ?? "",
+      signature: rp.signature ?? "",
+    });
+    if (!verified) {
+      return NextResponse.json(
+        {
+          error:
+            "We couldn't verify your payment. If money was deducted, it will be auto-refunded — please contact support with your payment reference.",
+        },
+        { status: 400 }
+      );
+    }
+  }
+
   const hasQuote = typeof shippingNum === "number";
   const shippingAmount = isPrepaid ? 0 : hasQuote ? (shippingNum as number) : 0;
   const serverSubtotal = priced.subtotal;
@@ -156,6 +187,9 @@ export async function POST(req: Request) {
     total: serverTotalNum,
     paymentMethod: payment || "Cash on Delivery",
     shippingCourier: shippingCourier ?? null,
+    status: isPrepaid ? "paid" : "pre_order",
+    paymentId: isPrepaid ? razorpay?.paymentId ?? null : null,
+    paymentStatus: isPrepaid ? "paid" : "cod",
   });
 
   const resend = new Resend(apiKey);
@@ -173,6 +207,10 @@ export async function POST(req: Request) {
       .join("\n")
   ).replace(/\n/g, "<br>");
   const paymentLabel = escapeHtml(payment || "Cash on Delivery");
+  // Prepaid orders carry a Razorpay payment reference; show it (and a "Paid"
+  // status) so the customer has everything needed to track/query the order.
+  const paymentValue = isPrepaid ? `${paymentLabel} · Paid` : paymentLabel;
+  const paymentRef = isPrepaid ? escapeHtml(razorpay?.paymentId || "") : "";
 
   const shippingLabel = isPrepaid
     ? "FREE"
@@ -236,8 +274,16 @@ export async function POST(req: Request) {
           </tr>
           <tr>
             <td style="padding:6px 0 0;color:#6B6357;">Payment</td>
-            <td style="padding:6px 0 0;text-align:right;color:#6B6357;">${paymentLabel}</td>
+            <td style="padding:6px 0 0;text-align:right;color:#6B6357;">${paymentValue}</td>
           </tr>
+          ${
+            paymentRef
+              ? `<tr>
+            <td style="padding:6px 0 0;color:#6B6357;">Payment Reference</td>
+            <td style="padding:6px 0 0;text-align:right;color:#6B6357;font-family:monospace;">${paymentRef}</td>
+          </tr>`
+              : ""
+          }
         </table>
         <div style="font-size:12px;color:#9B8F7C;margin-top:14px;line-height:1.6;">
           ${shippingNote}
@@ -248,7 +294,11 @@ export async function POST(req: Request) {
         <div style="font-size:14px;line-height:1.7;color:#26221C;">${shipTo}</div>
       </div>
       <p style="font-size:14px;line-height:1.7;color:#6B6357;margin:24px 0 0;">
-        We'll be in touch soon with your dispatch details. Questions about your pre-order booking? Just reply to this email.
+        Keep your order reference <strong style="color:#26221C;">${escapeHtml(orderNumber)}</strong>${
+          paymentRef
+            ? ` and payment reference <strong style="color:#26221C;">${paymentRef}</strong>`
+            : ""
+        } for any questions — just reply to this email and we'll help. We'll be in touch soon with your dispatch details.
       </p>
       <div style="height:1px;background:#E0D6C6;margin:28px 0 18px;"></div>
       <div style="font-size:12px;color:#9B8F7C;">© 2026 SkinSnap · Freshly Mixed. Naturally Beautiful.</div>
