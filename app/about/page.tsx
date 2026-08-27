@@ -7,13 +7,13 @@ import ProductCta from "@/components/ProductCta";
 export const metadata: Metadata = {
 	title: "About Us",
 	description:
-		"SkinSnap is a three-founder Indian skincare brand making single-use dual-chamber face packs — rose water and herbal powder sealed separately, mixed fresh when you press.",
+		"SkinSnap is a three-founder Indian skincare brand making 100% natural face-pack powders — 50g jars of pure clay and botanicals you mix fresh at home with water or rose water.",
 	alternates: { canonical: "/about" },
 	openGraph: {
 		url: "/about",
 		title: "About SkinSnap",
 		description:
-			"The three-founder Indian brand behind the dual-chamber fresh-activation face pack.",
+			"The three-founder Indian brand behind the pure, mix-fresh natural face-pack powder.",
 	},
 };
 
@@ -22,15 +22,15 @@ const founders = ["Sagar", "Pratham", "Tarun"];
 const facts = [
 	{
 		q: "What is SkinSnap?",
-		a: "A single-use face pack pouch with two sealed chambers: 20ml of pure rose water on one side and 20g of herbal powder on the other. They stay separate until you press the rose water chamber, massage for 10–15 seconds to mix, tear the corner and apply.",
+		a: "A 50g jar of 100% natural face-pack powder — pure, finely milled clay and botanicals with nothing added. You scoop a spoonful, mix it with a little water or rose water into a smooth paste, apply, and rinse after 10–15 minutes.",
 	},
 	{
-		q: "Why dual chambers?",
-		a: "Bulk clay powder absorbs moisture and hardens in Indian humidity, and pre-mixed cream packs need preservatives to survive months in a tube. Keeping the liquid and powder sealed apart means every pack activates fresh — with no preservatives and no chemicals at all.",
+		q: "Why a powder?",
+		a: "Pre-mixed cream packs sit in a tube for months and need preservatives to survive, while a powder you mix yourself needs none. Keeping it dry until the moment of use means every pack is fresh and full-strength — with no preservatives and no chemicals at all.",
 	},
 	{
 		q: "What does it cost?",
-		a: "A single pouch is ₹29. The 4-in-1 combo with all four variants — Multani Mitti, Orange Peel, De-Tan and Korean Glow — is ₹99.",
+		a: "A single 50g jar is ₹399, and the more you buy the less each costs — 2 for ₹649, 3 for ₹849, 4 for ₹999, and 5 for ₹1,149 (about ₹230 a jar). The 4-in-1 combo box with all four variants is ₹749.",
 	},
 	{
 		q: "Where is SkinSnap from?",
@@ -70,7 +70,7 @@ export default function AboutPage() {
 				>
 					Fresh skincare,
 					<br />
-					sealed until you need it.
+					mixed when you need it.
 				</h1>
 			</section>
 
@@ -89,19 +89,17 @@ export default function AboutPage() {
 					}}
 				>
 					<p style={{ margin: "0 0 18px" }}>
-						SkinSnap started with a familiar frustration. Traditional face packs
-						come in two flavours of compromise: loose powders that clump and
-						harden in humid Indian bathrooms, or pre-mixed creams that sit in
-						tubes for months and need preservatives to stay usable. Fresh was
-						clearly better — but fresh meant bowls, spoons, guessed ratios and a
-						stained washbasin every single time.
+						SkinSnap started with a familiar frustration. Pre-mixed cream packs
+						sit in tubes for months and need preservatives to stay usable, and
+						most powders on the shelf are padded out with fillers and fragrance.
+						Fresh, pure clay was clearly better — mixed only when you need it,
+						with nothing added to make it last.
 					</p>
 					<p style={{ margin: "0 0 18px" }}>
-						So we built the dual-chamber pouch. One chamber holds 20ml of pure
-						rose water, the other 20g of herbal powder, sealed apart from the
-						day it is packed. Press the rose water chamber, massage for a few
-						seconds, tear and apply — a freshly activated face pack with the
-						exact right ratio, no mess and no preservatives.
+						So we kept it simple: a 50g jar of pure, natural powder and nothing
+						else. Scoop a spoonful, add a little water or rose water, stir into a
+						smooth paste and apply — a freshly mixed face pack every time, with
+						no preservatives and no chemicals.
 					</p>
 					<p style={{ margin: "0 0 18px" }}>
 						We are a three-person founding team — {founders.join(", ")} — and we

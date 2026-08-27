@@ -48,7 +48,7 @@ export default function ProductsPage() {
         >
           Four face packs.
           <br />
-          One innovation.
+          One pure powder.
         </h1>
         <p
           data-hero
@@ -60,8 +60,8 @@ export default function ProductsPage() {
             lineHeight: 1.6,
           }}
         >
-          Every SkinSnap shares the same dual-chamber frangible pouch. Only the
-          ritual inside changes.
+          Every SkinSnap is the same pure, mix-fresh 50g powder jar. Only the
+          blend inside changes.
         </p>
         {/* <div
           data-hero
@@ -140,8 +140,8 @@ export default function ProductsPage() {
               marginBottom: 32,
             }}
           >
-            See exactly how the dual-chamber pouch activates — then pick the
-            ritual for your skin.
+            See exactly how to mix a fresh pack in seconds — then pick the
+            blend for your skin.
           </p>
           <Link
             href="/how-it-works"

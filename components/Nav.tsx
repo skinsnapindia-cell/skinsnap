@@ -43,8 +43,8 @@ export default function Nav({ active }: { active: Active }) {
     <>
     {/* PROMO BANNER — sits above the nav on every page */}
     <Link
-      href="/product/combo-pack"
-      aria-label="Offer: 4-Pack Combo for just ₹99"
+      href="/products"
+      aria-label="Offer: Buy More, Save More — up to ₹846 off a 5-pack, or the 4-in-1 combo for ₹749"
       style={{
         position: "fixed",
         top: 0,
@@ -69,8 +69,9 @@ export default function Nav({ active }: { active: Active }) {
     >
       <span aria-hidden="true">🎁</span>
       <span>
-        4-Pack Combo Offer — all 4 rituals for just{" "}
-        <strong style={{ fontWeight: 800, color: "#FFF3E4" }}>₹99</strong>
+        Buy More, Save More — up to{" "}
+        <strong style={{ fontWeight: 800, color: "#FFF3E4" }}>₹846 off</strong>
+        {" "}a 5-pack · 4-in-1 combo ₹749
       </span>
       <span aria-hidden="true" style={{ fontWeight: 800 }}>
         Shop&nbsp;→

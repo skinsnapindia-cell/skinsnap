@@ -27,33 +27,33 @@ const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "SkinSnap — Fresh Clay. Zero Mess.",
+    default: "SkinSnap — Pure Clay. Freshly Mixed.",
     template: "%s | SkinSnap",
   },
   description:
-    "Freshly activated natural face packs with dual-chamber innovation. Press to mix rose water and clay — no bowl, no spoon, no mess.",
+    "100% natural face-pack powders in a 50g jar. Scoop a spoonful, mix with water or rose water, and apply a freshly mixed face pack — no preservatives, no chemicals.",
   openGraph: {
     type: "website",
     siteName: "SkinSnap",
     locale: "en_IN",
     url: "/",
-    title: "SkinSnap — Fresh Clay. Zero Mess.",
+    title: "SkinSnap — Pure Clay. Freshly Mixed.",
     description:
-      "Freshly activated natural face packs with dual-chamber innovation. Press to mix rose water and clay — no bowl, no spoon, no mess.",
+      "100% natural face-pack powders in a 50g jar. Scoop a spoonful, mix with water or rose water, and apply a freshly mixed face pack — no preservatives, no chemicals.",
     images: [
       {
         url: OG_DEFAULT_IMAGE,
         width: 1200,
         height: 630,
-        alt: "SkinSnap freshly activated natural face packs",
+        alt: "SkinSnap natural face-pack powders",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "SkinSnap — Fresh Clay. Zero Mess.",
+    title: "SkinSnap — Pure Clay. Freshly Mixed.",
     description:
-      "Freshly activated natural face packs. Press to mix rose water and clay — no bowl, no spoon, no mess.",
+      "100% natural face-pack powders in a 50g jar. Mix a spoonful with water or rose water for a freshly mixed face pack.",
     images: [OG_DEFAULT_IMAGE],
   },
 };

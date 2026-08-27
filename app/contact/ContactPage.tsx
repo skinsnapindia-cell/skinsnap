@@ -23,7 +23,7 @@ const faqData = [
   },
   {
     q: "What is your return policy?",
-    a: "Unopened pouches can be returned within 30 days. Because each pouch is single-use and hygienic, opened pouches are non-returnable.",
+    a: "Unopened jars can be returned within 30 days. For hygiene reasons, opened jars are non-returnable.",
   },
 ];
 

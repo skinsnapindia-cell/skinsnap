@@ -1,4 +1,4 @@
-# SkinSnap — Dual-Chamber Pouch Store
+# SkinSnap — Natural Face-Pack Powder Store
 
 A pixel-faithful frontend build of the **SkinSnap** face-pack store, recreated
 from the Claude Design handoff bundle. Same theme, layout, product images,
@@ -14,7 +14,7 @@ the **Resend API**, and then shows a thank-you message confirming the order.
 - **Next.js 14** (App Router) + **React 18** + **TypeScript**
 - **GSAP + ScrollTrigger** and **Lenis** smooth scroll — the exact animation
   toolkit from the prototype (hero petal drift, mouse parallax, scroll reveals,
-  the pinned pouch-activation timeline, 3D card tilt, sticky buy bar)
+  the pinned mixing-ritual timeline, 3D card tilt, sticky buy bar)
 - **Instrument Serif + Manrope** (Google Fonts)
 - **Google Analytics 4** page-view tracking via `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 - **Resend** for the confirmation email
@@ -25,7 +25,7 @@ the **Resend API**, and then shows a thank-you message confirming the order.
 | ----------------- | ------------------------------------------------------------ |
 | `/`               | Home — hero slider, featured collection, innovation strip    |
 | `/products`       | Collection grid + filters                                    |
-| `/how-it-works`   | Scroll-driven pouch activation animation + FAQ               |
+| `/how-it-works`   | Scroll-driven scoop → mix → apply → glow animation + FAQ      |
 | `/contact`        | Contact form, business info, map, FAQ                        |
 | `/product/[slug]` | Product detail (front/inside/back gallery, reviews, related) |
 

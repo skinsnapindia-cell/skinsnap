@@ -10,9 +10,9 @@ import { SITE_URL } from "@/lib/site";
 
 const HEADER = `# SkinSnap
 
-> SkinSnap is an Indian D2C skincare brand selling single-use, dual-chamber natural face pack pouches. Each pouch keeps 20ml of pure rose water and 20g of herbal powder sealed separately until use: press the rose water chamber, massage 10–15 seconds to mix, tear the corner and apply — a freshly activated face pack with no bowl, no spoon and no preservatives. Singles cost ₹29, the 4-in-1 combo ₹99. Website: ${SITE_URL}
+> SkinSnap is an Indian D2C skincare brand selling 100% natural face-pack powders in 50g jars. Each jar is pure, finely milled clay and botanicals with no preservatives and no chemicals: scoop a spoonful, mix with a little water or rose water into a smooth paste, and apply — a freshly mixed face pack every time. Single jars use "Buy More, Save More" quantity pricing per product: 1 jar ₹399, 2 for ₹649, 3 for ₹849, 4 for ₹999, 5 for ₹1,149; quantities above 5 use the 5-pack per-unit price (₹229.80/jar). The 4-in-1 combo box (all four 50g jars) is a fixed ₹749. Website: ${SITE_URL}
 
-SkinSnap was founded by a three-person team — Sagar, Pratham and Tarun — to solve a specific problem: bulk clay powders harden and degrade with moisture, while pre-mixed cream packs need preservatives to survive the shelf. The dual-chamber pouch keeps ingredients fresh without either compromise. Variants: Multani Mitti (oil control), Orange Peel (vitamin-C brightening), De-Tan (turmeric + clay), Korean Glow (healthy glow). Instagram: @skinsnap.india.
+SkinSnap was founded by a three-person team — Sagar, Pratham and Tarun — to make honest, natural skincare simple: pure powders you mix fresh at home, so there are no preservatives and nothing sitting pre-mixed in a tube. Variants: Multani Mitti (oil control), Orange Peel (vitamin-C brightening), De-Tan (turmeric + clay), Korean Glow (healthy glow). Instagram: @skinsnap.india.
 
 Markdown versions of blog guides are available by appending .md to any guide URL.`;
 
@@ -50,8 +50,8 @@ ${guideLines(posts)}
 
 ## Company
 
-- [About SkinSnap](${SITE_URL}/about): Who we are and why the dual-chamber pouch exists.
-- [How It Works](${SITE_URL}/how-it-works): The press → mix → tear → apply activation flow.
+- [About SkinSnap](${SITE_URL}/about): Who we are and why we make pure, mix-fresh powders.
+- [How It Works](${SITE_URL}/how-it-works): The scoop → mix → apply → glow routine.
 - [Contact](${SITE_URL}/contact): Email, Instagram and WhatsApp support.
 
 ## Optional

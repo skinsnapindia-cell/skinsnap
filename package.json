@@ -6,9 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.109.0",
     "gray-matter": "^4.0.3",
     "gsap": "^3.12.5",
     "lenis": "^1.1.13",
@@ -23,6 +25,7 @@
     "@types/node": "^20.14.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "vitest": "^4.1.11"
   }
 }

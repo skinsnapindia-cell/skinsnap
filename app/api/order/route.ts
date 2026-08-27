@@ -1,22 +1,33 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { getProduct, productDisplayName } from "@/lib/products";
+import { generateOrderNumber, markEmailSent, saveOrder } from "@/lib/orders";
+import { resolveOrderPricing } from "@/lib/orderPricing";
+import { formatINR } from "@/lib/format";
 
 /**
- * The ONLY server-side code in this project.
+ * Places a pre-order booking: saves it to Supabase, then emails the customer a
+ * confirmation via Resend.
  *
- * Resend requires a secret API key and blocks direct browser (CORS) calls, so
- * the confirmation email cannot be sent from the frontend alone. This tiny
- * relay does one thing: send the order-confirmation email. There is no
- * database and no other backend logic.
+ * It does NOT create a Shiprocket shipment — Shiprocket is used only to quote
+ * the shipping charge at checkout (see /api/shipping-rate). Fulfilment is
+ * managed manually in the Shiprocket dashboard.
  *
- * Configure via .env.local:
- *   RESEND_API_KEY=re_xxxxxxxx
- *   RESEND_FROM="SkinSnap <onboarding@resend.dev>"   (optional)
+ * Both the DB save and the email are best-effort in the sense that a Supabase
+ * outage still lets the email send; only a hard email failure returns an error
+ * to the customer.
  */
 
 export const runtime = "nodejs";
 
-type OrderItem = { title: string; qty: number; priceEach: string; lineTotal: string };
+type OrderItem = {
+  title: string;
+  qty: number;
+  priceEach: string;
+  lineTotal: string;
+  slug?: string;
+  priceEachNum?: number;
+};
 
 function escapeHtml(s: string) {
   return String(s)
@@ -38,15 +49,30 @@ export async function POST(req: Request) {
     );
   }
 
-  type Address = { line?: string; city?: string; state?: string; pincode?: string };
+  type Address = {
+    flat?: string;
+    street?: string;
+    area?: string;
+    line?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+  };
   let body: {
     name?: string;
     email?: string;
     phone?: string;
     address?: Address;
     payment?: string;
+    /** true = pay online (prepaid) → ships free; false/undefined = COD */
+    prepaid?: boolean;
     items?: OrderItem[];
     total?: string;
+    subtotalNum?: number;
+    /** null when no real courier quote was available */
+    shippingNum?: number | null;
+    shippingCourier?: string | null;
+    totalNum?: number;
   };
   try {
     body = await req.json();
@@ -54,7 +80,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { name, email, phone, address, payment, items, total } = body;
+  const {
+    name,
+    email,
+    phone,
+    address,
+    payment,
+    prepaid,
+    items,
+    total,
+    subtotalNum,
+    shippingNum,
+    shippingCourier,
+    totalNum,
+  } = body;
   const emailOk = typeof email === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const addr = address || {};
   const addressOk = !!(addr.line && addr.city && addr.state && addr.pincode);
@@ -67,6 +106,57 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
+
+  // NEVER trust prices sent by the browser. Recompute every line from the
+  // catalog using slug + qty. These server values are authoritative for the
+  // email and the saved order, and the snapshot is persisted so later pricing
+  // changes never rewrite historical orders.
+  const priced = resolveOrderPricing(
+    items.map((i) => ({ slug: i.slug ?? "", qty: Number(i.qty) || 0 })),
+    getProduct
+  );
+  if (priced.lines.length === 0) {
+    return NextResponse.json(
+      { error: "None of the items in your cart are available." },
+      { status: 400 }
+    );
+  }
+
+  // Prepaid orders always ship free — enforced here, never trusting the client.
+  const isPrepaid = prepaid === true;
+  const hasQuote = typeof shippingNum === "number";
+  const shippingAmount = isPrepaid ? 0 : hasQuote ? (shippingNum as number) : 0;
+  const serverSubtotal = priced.subtotal;
+  const serverTotalNum = serverSubtotal + shippingAmount;
+  const serverTotal = formatINR(serverTotalNum);
+
+  // One reference shared by the DB row, the customer's email and Shiprocket.
+  const orderNumber = generateOrderNumber();
+
+  // Persist before anything else, so the order survives an email or Shiprocket
+  // failure. Returns null (and logs) if Supabase isn't set up or is down —
+  // never blocks the sale.
+  const orderRowId = await saveOrder({
+    orderNumber,
+    name: name || "",
+    email,
+    phone,
+    address: addr,
+    items: priced.lines.map((l) => ({
+      slug: l.slug,
+      title: l.title,
+      qty: l.qty,
+      priceEach: l.unitPrice,
+      lineTotal: formatINR(l.lineTotal),
+      regularEach: l.regularEach,
+      savings: l.savings,
+    })),
+    subtotal: serverSubtotal,
+    shipping: isPrepaid ? 0 : hasQuote ? (shippingNum as number) : null,
+    total: serverTotalNum,
+    paymentMethod: payment || "Cash on Delivery",
+    shippingCourier: shippingCourier ?? null,
+  });
 
   const resend = new Resend(apiKey);
   const from = process.env.RESEND_FROM || "SkinSnap <onboarding@resend.dev>";
@@ -84,45 +174,73 @@ export async function POST(req: Request) {
   ).replace(/\n/g, "<br>");
   const paymentLabel = escapeHtml(payment || "Cash on Delivery");
 
-  const rows = items
+  const shippingLabel = isPrepaid
+    ? "FREE"
+    : hasQuote
+      ? `${formatINR(shippingAmount)}${shippingCourier ? ` · ${escapeHtml(shippingCourier)}` : ""}`
+      : "Charges may apply";
+  const shippingNote = isPrepaid
+    ? "Shipping is free on your prepaid order — no delivery charges."
+    : hasQuote
+      ? "Shipping is included in the total above and is collected on delivery."
+      : "Applicable shipping charges will be confirmed before dispatch and collected on delivery.";
+
+  const rows = priced.lines
     .map(
-      (it) => `
+      (l) => `
           <tr>
-            <td style="padding:6px 0;color:#26221C;">${Number(it.qty) || 1} × ${escapeHtml(it.title)} Face Pack</td>
-            <td style="padding:6px 0;text-align:right;color:#26221C;">${escapeHtml(it.lineTotal || "")}</td>
+            <td style="padding:6px 0;color:#26221C;">${l.qty} × ${escapeHtml(
+              // use the real display name so the combo isn't "Combo Pack Face Pack"
+              productDisplayName({ slug: l.slug, title: l.title })
+            )}</td>
+            <td style="padding:6px 0;text-align:right;color:#26221C;">${escapeHtml(formatINR(l.lineTotal))}</td>
           </tr>`
     )
     .join("");
+
+  const subtotalRow = `<tr>
+            <td style="padding:12px 0 0;border-top:1px solid #EAE0D0;color:#6B6357;">Subtotal</td>
+            <td style="padding:12px 0 0;border-top:1px solid #EAE0D0;text-align:right;color:#6B6357;">${escapeHtml(formatINR(serverSubtotal))}</td>
+          </tr>${
+            priced.savings > 0
+              ? `<tr>
+            <td style="padding:6px 0 0;color:#5E7C4E;">Buy more, save more</td>
+            <td style="padding:6px 0 0;text-align:right;color:#5E7C4E;">−${escapeHtml(formatINR(priced.savings))}</td>
+          </tr>`
+              : ""
+          }`;
 
   const html = `
   <div style="margin:0;padding:0;background:#F6F1E9;font-family:'Helvetica Neue',Arial,sans-serif;color:#26221C;">
     <div style="max-width:520px;margin:0 auto;padding:40px 24px;">
       <div style="font-family:Georgia,serif;font-size:26px;letter-spacing:2px;color:#26221C;">SKINSNAP</div>
-      <div style="font-family:Georgia,serif;font-style:italic;color:#A15E38;font-size:15px;margin-top:4px;">Fresh Clay. Zero Mess.</div>
+      <div style="font-family:Georgia,serif;font-style:italic;color:#A15E38;font-size:15px;margin-top:4px;">Pure Clay. Freshly Mixed.</div>
       <div style="height:1px;background:#E0D6C6;margin:26px 0;"></div>
       <h1 style="font-family:Georgia,serif;font-weight:normal;font-size:30px;margin:0 0 14px;">Thank you, ${firstName}!</h1>
       <p style="font-size:15px;line-height:1.7;color:#5A5348;margin:0 0 24px;">
-        We're happy to confirm your <strong>pre-order booking</strong> with SkinSnap. This is not a dispatch confirmation — we'll email you again as soon as your freshly activated face packs are ready to ship.
+        We're happy to confirm your <strong>pre-order booking</strong> with SkinSnap. This is not a dispatch confirmation — we'll email you again as soon as your natural face-pack powders are ready to ship.
       </p>
       <div style="background:#FCFAF5;border:1px solid #EAE0D0;border-radius:16px;padding:22px 24px;">
-        <div style="font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#A15E38;margin-bottom:14px;">Pre-Order Booking Summary</div>
+        <div style="font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#A15E38;margin-bottom:4px;">Pre-Order Booking Summary</div>
+        <div style="font-size:13px;color:#9B8F7C;margin-bottom:14px;">Reference: <strong style="color:#26221C;">${escapeHtml(orderNumber)}</strong></div>
         <table style="width:100%;border-collapse:collapse;font-size:15px;">
           ${rows}
+          ${subtotalRow}
+          <tr>
+            <td style="padding:6px 0 0;color:#6B6357;">Shipping</td>
+            <td style="padding:6px 0 0;text-align:right;color:#6B6357;">${shippingLabel}</td>
+          </tr>
           <tr>
             <td style="padding:12px 0 0;border-top:1px solid #EAE0D0;font-weight:bold;">Total</td>
-            <td style="padding:12px 0 0;border-top:1px solid #EAE0D0;text-align:right;font-weight:bold;">${escapeHtml(total || "")}</td>
+            <td style="padding:12px 0 0;border-top:1px solid #EAE0D0;text-align:right;font-weight:bold;">${escapeHtml(serverTotal)}</td>
           </tr>
           <tr>
             <td style="padding:6px 0 0;color:#6B6357;">Payment</td>
             <td style="padding:6px 0 0;text-align:right;color:#6B6357;">${paymentLabel}</td>
           </tr>
-          <tr>
-            <td style="padding:6px 0 0;color:#6B6357;">Shipping</td>
-            <td style="padding:6px 0 0;text-align:right;color:#6B6357;">Charges may apply</td>
-          </tr>
         </table>
         <div style="font-size:12px;color:#9B8F7C;margin-top:14px;line-height:1.6;">
-          The total above is for your pre-order booking. Applicable shipping charges will be confirmed before dispatch and collected on delivery.
+          ${shippingNote}
         </div>
       </div>
       <div style="background:#FCFAF5;border:1px solid #EAE0D0;border-radius:16px;padding:22px 24px;margin-top:16px;">
@@ -133,7 +251,7 @@ export async function POST(req: Request) {
         We'll be in touch soon with your dispatch details. Questions about your pre-order booking? Just reply to this email.
       </p>
       <div style="height:1px;background:#E0D6C6;margin:28px 0 18px;"></div>
-      <div style="font-size:12px;color:#9B8F7C;">© 2026 SkinSnap · Freshly Activated. Naturally Beautiful.</div>
+      <div style="font-size:12px;color:#9B8F7C;">© 2026 SkinSnap · Freshly Mixed. Naturally Beautiful.</div>
     </div>
   </div>`;
 
@@ -150,7 +268,10 @@ export async function POST(req: Request) {
         { status: 502 }
       );
     }
-    return NextResponse.json({ ok: true, id: data?.id });
+
+    await markEmailSent(orderRowId);
+
+    return NextResponse.json({ ok: true, orderNumber, id: data?.id });
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Failed to send email." },

@@ -4,13 +4,13 @@ import ProductsPage from "./ProductsPage";
 export const metadata: Metadata = {
   title: "Natural Face Packs — Multani Mitti, Orange Peel, De-Tan & Korean Glow",
   description:
-    "Shop all SkinSnap face packs. Every pouch uses dual-chamber fresh activation — 20ml pure rose water + 20g herbal powder, mixed only when you press. Singles ₹29, combo pack ₹99.",
+    "Shop all SkinSnap face packs. Every jar is 50g of pure, natural powder — mix a spoonful with water or rose water for a freshly made pack. Buy more, save more: 1 jar ₹399 down to ₹229.80/jar for 5. Combo pack ₹749.",
   alternates: { canonical: "/products" },
   openGraph: {
     url: "/products",
     title: "SkinSnap Natural Face Packs",
     description:
-      "Multani Mitti, Orange Peel, De-Tan & Korean Glow. Singles ₹29, combo pack ₹99.",
+      "Multani Mitti, Orange Peel, De-Tan & Korean Glow. Buy more, save more from ₹399. Combo pack ₹749.",
   },
 };
 
