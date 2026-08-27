@@ -336,20 +336,28 @@ export default function CartModal({
               {totalSavings > 0 && (
                 <div
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
                     marginBottom: 12,
                     background: "#EAF1E4",
                     borderRadius: 10,
                     padding: "11px 14px",
-                    fontSize: 17,
-                    fontWeight: 800,
                     color: "#5E7C4E",
                   }}
                 >
-                  <span>🎉 You save</span>
-                  <span>{formatINR(totalSavings)}</span>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      fontSize: 17,
+                      fontWeight: 800,
+                    }}
+                  >
+                    <span>🎉 You save</span>
+                    <span>{formatINR(totalSavings)}</span>
+                  </div>
+                  <div style={{ fontSize: 12, fontWeight: 600, marginTop: 4, opacity: 0.85 }}>
+                    Regular {formatINR(subtotal + totalSavings)} − you pay {formatINR(subtotal)} = save {formatINR(totalSavings)}
+                  </div>
                 </div>
               )}
               <div
@@ -385,7 +393,7 @@ export default function CartModal({
                   (e.currentTarget.style.background = "#26221C")
                 }
               >
-                Pre-Order · {formatINR(subtotal)}
+                Order · {formatINR(subtotal)}
               </button>
               <div
                 style={{

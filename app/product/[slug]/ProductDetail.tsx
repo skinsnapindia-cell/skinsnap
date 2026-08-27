@@ -338,6 +338,11 @@ export default function ProductDetail({
                       ? `${qty} jars · ${formatUnitINR(unit)} each`
                       : "/ 50g jar"}
                 </span>
+                {savingsTotal > 0 && (
+                  <div style={{ fontSize: 13, color: "#5E7C4E", fontWeight: 600, marginTop: 8 }}>
+                    You pay {formatINR(offerTotal)} instead of {formatINR(regularTotal)} — that&apos;s {formatINR(savingsTotal)} off.
+                  </div>
+                )}
                 {useTiers && (
                   <PackSelector
                     tiers={product.pricingTiers!}
@@ -439,7 +444,7 @@ export default function ProductDetail({
                     (e.currentTarget.style.background = "#26221C")
                   }
                 >
-                  Pre-Order
+                  Order Now
                 </button>
               </div>
 
@@ -819,7 +824,7 @@ export default function ProductDetail({
                 (e.currentTarget.style.background = "#26221C")
               }
             >
-              Pre-Order
+              Order Now
             </button>
           </div>
         </div>
@@ -931,8 +936,15 @@ function PackSelector({
                   flexShrink: 0,
                 }}
               >
-                <span style={{ fontWeight: 700, fontSize: 16, color: "#26221C" }}>
-                  {formatINR(t.total)}
+                <span style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                  {savings > 0 && (
+                    <span style={{ fontSize: 12.5, color: "#9B8F7C", textDecoration: "line-through" }}>
+                      {formatINR(Math.round(singleUnit * t.qty))}
+                    </span>
+                  )}
+                  <span style={{ fontWeight: 700, fontSize: 16, color: "#26221C" }}>
+                    {formatINR(t.total)}
+                  </span>
                 </span>
                 {savings > 0 && (
                   <span style={{ fontSize: 14, fontWeight: 800, color: "#5E7C4E" }}>

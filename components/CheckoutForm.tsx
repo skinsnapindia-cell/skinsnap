@@ -392,7 +392,7 @@ export default function CheckoutForm({
         </div>
         <h3 style={h3Style}>Thank you, {name.split(" ")[0] || "friend"}!</h3>
         <p style={pMuted}>
-          Your pre-order booking for{" "}
+          Your order for{" "}
           <strong>
             {receipt.count} {receipt.count === 1 ? "jar" : "jars"}
           </strong>{" "}
@@ -522,9 +522,17 @@ export default function CheckoutForm({
         <span>{formatINR(grandTotal)}</span>
       </div>
       {totalYouSave > 0 && (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 12, background: "#EAF1E4", borderRadius: 10, padding: "11px 14px", fontSize: 17, fontWeight: 800, color: "#5E7C4E" }}>
-          <span>🎉 You save</span>
-          <span>{formatINR(totalYouSave)}</span>
+        <div style={{ marginTop: 12, background: "#EAF1E4", borderRadius: 10, padding: "11px 14px", color: "#5E7C4E" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 17, fontWeight: 800 }}>
+            <span>🎉 You save</span>
+            <span>{formatINR(totalYouSave)}</span>
+          </div>
+          <div style={{ fontSize: 12, fontWeight: 600, marginTop: 4, opacity: 0.85 }}>
+            {savings > 0
+              ? `Regular ${formatINR(subtotal + savings)} − you pay ${formatINR(subtotal)}`
+              : `You pay ${formatINR(subtotal)}`}
+            {isPrepaid && codShippingRate > 0 ? ` + free shipping (${formatINR(codShippingRate)})` : ""}
+          </div>
         </div>
       )}
     </div>

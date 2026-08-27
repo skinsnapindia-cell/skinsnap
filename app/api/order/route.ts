@@ -7,7 +7,7 @@ import { isRazorpayConfigured, verifyPaymentSignature } from "@/lib/razorpay";
 import { formatINR } from "@/lib/format";
 
 /**
- * Places a pre-order booking: saves it to Supabase, then emails the customer a
+ * Places an order: saves it to Supabase, then emails the customer a
  * confirmation via Resend.
  *
  * It does NOT create a Shiprocket shipment — Shiprocket is used only to quote
@@ -256,10 +256,10 @@ export async function POST(req: Request) {
       <div style="height:1px;background:#E0D6C6;margin:26px 0;"></div>
       <h1 style="font-family:Georgia,serif;font-weight:normal;font-size:30px;margin:0 0 14px;">Thank you, ${firstName}!</h1>
       <p style="font-size:15px;line-height:1.7;color:#5A5348;margin:0 0 24px;">
-        We're happy to confirm your <strong>pre-order booking</strong> with SkinSnap. This is not a dispatch confirmation — we'll email you again as soon as your natural face-pack powders are ready to ship.
+        We're happy to confirm your <strong>order</strong> with SkinSnap. This is not a dispatch confirmation — we'll email you again as soon as your natural face-pack powders are ready to ship.
       </p>
       <div style="background:#FCFAF5;border:1px solid #EAE0D0;border-radius:16px;padding:22px 24px;">
-        <div style="font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#A15E38;margin-bottom:4px;">Pre-Order Booking Summary</div>
+        <div style="font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#A15E38;margin-bottom:4px;">Order Summary</div>
         <div style="font-size:13px;color:#9B8F7C;margin-bottom:14px;">Reference: <strong style="color:#26221C;">${escapeHtml(orderNumber)}</strong></div>
         <table style="width:100%;border-collapse:collapse;font-size:15px;">
           ${rows}
@@ -309,7 +309,7 @@ export async function POST(req: Request) {
     const { data, error } = await resend.emails.send({
       from,
       to: email,
-      subject: `Your SkinSnap Pre-Order Booking is confirmed 🌿`,
+      subject: `Your SkinSnap Order is confirmed 🌿`,
       html,
     });
     if (error) {
