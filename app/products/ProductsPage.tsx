@@ -5,6 +5,7 @@ import { useRef } from "react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ProductPouch from "@/components/ProductPouch";
+import OfferMarquee from "@/components/OfferMarquee";
 import { products } from "@/lib/products";
 import { useReveals } from "@/lib/useReveals";
 
@@ -103,6 +104,9 @@ export default function ProductsPage() {
         className="section-pad"
         style={{ padding: "40px 48px 130px", background: "#F6F1E9" }}
       >
+        <div data-reveal style={{ marginBottom: 48 }}>
+          <OfferMarquee />
+        </div>
         <div
           className="grid-2"
           style={{ maxWidth: 820, margin: "0 auto", gap: 30 }}

@@ -45,6 +45,7 @@ export default function Nav({ active }: { active: Active }) {
     <Link
       href="/products"
       aria-label="Offer: Buy More, Save More — up to ₹846 off a 5-pack, or the 4-in-1 combo for ₹749"
+      className="promo-banner"
       style={{
         position: "fixed",
         top: 0,
@@ -59,21 +60,30 @@ export default function Nav({ active }: { active: Active }) {
         background: "linear-gradient(90deg,#A15E38 0%,#B97C79 100%)",
         color: "#F6F1E9",
         textDecoration: "none",
-        fontSize: "clamp(11px,3vw,13.5px)",
         fontWeight: 600,
         letterSpacing: "0.01em",
-        padding: "0 16px",
+        padding: "0 14px",
         whiteSpace: "nowrap",
         overflow: "hidden",
       }}
     >
-      <span aria-hidden="true">🎁</span>
-      <span>
+      <span aria-hidden="true" className="promo-gift">🎁</span>
+
+      {/* Full message — desktop / wider screens */}
+      <span className="promo-full">
         Buy More, Save More — up to{" "}
         <strong style={{ fontWeight: 800, color: "#FFF3E4" }}>₹846 off</strong>
         {" "}a 5-pack · 4-in-1 combo ₹749
       </span>
-      <span aria-hidden="true" style={{ fontWeight: 800 }}>
+
+      {/* Compact message — mobile */}
+      <span className="promo-compact">
+        Up to{" "}
+        <strong style={{ fontWeight: 800, color: "#FFF3E4" }}>₹846 OFF</strong>
+        {" "}on 5-packs
+      </span>
+
+      <span aria-hidden="true" className="promo-shop">
         Shop&nbsp;→
       </span>
     </Link>
@@ -91,7 +101,11 @@ export default function Nav({ active }: { active: Active }) {
         justifyContent: "space-between",
         padding: "20px 48px",
         transition: "background 0.4s ease, box-shadow 0.4s ease",
-        background: scrolled ? "rgba(246,241,233,0.82)" : "rgba(246,241,233,0)",
+        // Keep a soft scrim even before scroll so the dark links stay legible
+        // over busy/light areas of the hero image; deepen it once scrolled.
+        background: scrolled
+          ? "rgba(246,241,233,0.82)"
+          : "linear-gradient(180deg, rgba(246,241,233,0.72) 0%, rgba(246,241,233,0.32) 70%, rgba(246,241,233,0) 100%)",
         boxShadow: scrolled ? "0 1px 0 rgba(38,34,28,0.08)" : "none",
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",
@@ -117,7 +131,7 @@ export default function Nav({ active }: { active: Active }) {
               key={l.key}
               href={l.href}
               style={{
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: 600,
                 letterSpacing: "0.02em",
                 color: color(l.key),
@@ -238,12 +252,41 @@ export default function Nav({ active }: { active: Active }) {
         .nav-burger {
           display: none;
         }
+        /* Promo banner — full message on wider screens */
+        .promo-banner {
+          font-size: 13.5px;
+        }
+        .promo-full {
+          display: inline;
+        }
+        .promo-compact {
+          display: none;
+        }
         @media (max-width: 760px) {
           .nav-links {
             display: none;
           }
           .nav-burger {
             display: flex;
+          }
+        }
+        /* Swap to the compact, always-fits message on phones */
+        @media (max-width: 560px) {
+          .promo-banner {
+            font-size: 12.5px;
+            gap: 6px;
+            padding: 0 12px;
+          }
+          .promo-full {
+            display: none;
+          }
+          .promo-compact {
+            display: inline;
+          }
+        }
+        @media (max-width: 340px) {
+          .promo-gift {
+            display: none;
           }
         }
       `}</style>

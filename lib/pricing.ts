@@ -17,6 +17,14 @@
  * totals produced here (apply tier pricing first, then any coupon).
  */
 
+/**
+ * Hard cap on how many units of a single product a customer may buy. The
+ * "Buy More, Save More" tiers top out at 5, so this is both the pricing ceiling
+ * and the purchase limit. Enforced centrally in the cart and reflected in every
+ * quantity stepper.
+ */
+export const MAX_PER_PRODUCT = 5;
+
 export type PricingTier = {
   /** number of units this break applies to */
   qty: number;

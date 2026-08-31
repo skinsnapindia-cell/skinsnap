@@ -12,24 +12,24 @@ import { useReveals } from "@/lib/useReveals";
 import { useCart } from "@/context/CartContext";
 import { fbqTrack } from "@/lib/fbpixel";
 import { formatINR, formatUnitINR } from "@/lib/format";
-import { hasTiers, lineTotal, lineUnitPrice, lineRegularTotal, lineSavings, type PricingTier } from "@/lib/pricing";
+import { hasTiers, lineTotal, lineUnitPrice, lineRegularTotal, lineSavings, MAX_PER_PRODUCT, type PricingTier } from "@/lib/pricing";
 import { productDisplayName, type Product } from "@/lib/products";
 
 const reviews = [
   {
-    text: '"The freshest my clay mask has ever felt. Mixing a spoonful takes seconds and the paste is so smooth."',
-    name: "Priya M.",
-    meta: "Verified · Combination skin",
+    text: '"Ekdum fresh lage che! Just mix a spoonful with rose water and the paste is so smooth. My skin feels clean and soft after every use."',
+    name: "Krupa Patel",
+    meta: "Verified · Ahmedabad · Combination skin",
   },
   {
-    text: '"I was skeptical about mixing it myself, but it takes seconds and feels so much fresher than tube masks."',
-    name: "Daniel R.",
-    meta: "Verified · Oily skin",
+    text: '"I was skeptical about mixing it myself, but it takes seconds and feels so much fresher than the tube masks I used to buy. Loved it."',
+    name: "Hetal Shah",
+    meta: "Verified · Surat · Oily skin",
   },
   {
-    text: '"One jar lasts me ages and every pack is freshly mixed. Goes on silky and cool. Obsessed."',
-    name: "Sofia L.",
-    meta: "Verified · Normal skin",
+    text: '"One jar lasts me ages and every pack is freshly mixed. Goes on silky and cool, and the tan on my face has genuinely faded. Obsessed!"',
+    name: "Riddhi Mehta",
+    meta: "Verified · Vadodara · Normal skin",
   },
 ];
 
@@ -396,7 +396,12 @@ export default function ProductDetail({
                   >
                     {qty}
                   </span>
-                  <button onClick={() => setQty((q) => q + 1)} style={qtyBtn}>
+                  <button
+                    onClick={() => setQty((q) => Math.min(MAX_PER_PRODUCT, q + 1))}
+                    disabled={qty >= MAX_PER_PRODUCT}
+                    title={qty >= MAX_PER_PRODUCT ? `Limit ${MAX_PER_PRODUCT} per product` : undefined}
+                    style={{ ...qtyBtn, opacity: qty >= MAX_PER_PRODUCT ? 0.35 : 1, cursor: qty >= MAX_PER_PRODUCT ? "not-allowed" : "pointer" }}
+                  >
                     +
                   </button>
                 </div>
@@ -797,8 +802,10 @@ export default function ProductDetail({
                 {qty}
               </span>
               <button
-                onClick={() => setQty((q) => q + 1)}
-                style={{ ...qtyBtn, padding: "8px 14px", fontSize: 16 }}
+                onClick={() => setQty((q) => Math.min(MAX_PER_PRODUCT, q + 1))}
+                disabled={qty >= MAX_PER_PRODUCT}
+                title={qty >= MAX_PER_PRODUCT ? `Limit ${MAX_PER_PRODUCT} per product` : undefined}
+                style={{ ...qtyBtn, padding: "8px 14px", fontSize: 16, opacity: qty >= MAX_PER_PRODUCT ? 0.35 : 1, cursor: qty >= MAX_PER_PRODUCT ? "not-allowed" : "pointer" }}
               >
                 +
               </button>

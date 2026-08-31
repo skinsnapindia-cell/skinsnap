@@ -250,12 +250,18 @@ textarea::placeholder {
   gap: 32px;
   align-items: start;
 }
+/* Checkout variant: order items + summary on the LEFT (narrower, sticky),
+   the shipping/payment step content on the RIGHT (wider). */
+.order-grid--summary-left {
+  grid-template-columns: 1fr 1.5fr;
+}
 .order-summary-rail {
   position: sticky;
   top: 100px;
 }
 @media (max-width: 900px) {
-  .order-grid {
+  .order-grid,
+  .order-grid--summary-left {
     grid-template-columns: 1fr;
     gap: 24px;
   }

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { formatINR, formatUnitINR } from "@/lib/format";
 import { productDisplayName } from "@/lib/products";
-import { lineTotal, lineUnitPrice, lineSavings, singleUnitPrice } from "@/lib/pricing";
+import { lineTotal, lineUnitPrice, lineSavings, singleUnitPrice, MAX_PER_PRODUCT } from "@/lib/pricing";
 import { lockScroll, unlockScroll } from "@/lib/lenisControl";
 
 export default function CartModal({
@@ -308,7 +308,13 @@ export default function CartModal({
                         <button
                           aria-label="Increase quantity"
                           onClick={() => setQty(item.slug, item.qty + 1)}
-                          style={stepBtn}
+                          disabled={item.qty >= MAX_PER_PRODUCT}
+                          title={item.qty >= MAX_PER_PRODUCT ? `Limit ${MAX_PER_PRODUCT} per product` : undefined}
+                          style={{
+                            ...stepBtn,
+                            opacity: item.qty >= MAX_PER_PRODUCT ? 0.35 : 1,
+                            cursor: item.qty >= MAX_PER_PRODUCT ? "not-allowed" : "pointer",
+                          }}
                         >
                           +
                         </button>

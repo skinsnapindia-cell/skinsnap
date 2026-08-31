@@ -13,6 +13,7 @@ const useIsoLayoutEffect =
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import ProductPouch from "@/components/ProductPouch";
+import OfferMarquee from "@/components/OfferMarquee";
 import { products } from "@/lib/products";
 import { useReveals } from "@/lib/useReveals";
 
@@ -330,6 +331,7 @@ export default function HomePage() {
               Every jar is the same pure, natural powder — mixed fresh, the
               moment you need it.
             </p>
+            <OfferMarquee />
           </div>
           <div
             className="grid-2"

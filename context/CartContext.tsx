@@ -14,7 +14,7 @@ import CartModal from "@/components/CartModal";
 import CheckoutModal from "@/components/CheckoutModal";
 import { fbqTrack } from "@/lib/fbpixel";
 import { getProduct, type Product } from "@/lib/products";
-import { cartSubtotal, type PricingTier } from "@/lib/pricing";
+import { cartSubtotal, MAX_PER_PRODUCT, type PricingTier } from "@/lib/pricing";
 
 export type CartItem = {
   slug: string;
@@ -47,7 +47,10 @@ function loadStoredCart(): CartItem[] {
     const items: CartItem[] = [];
     for (const entry of parsed) {
       const product = getProduct(entry?.slug);
-      const qty = Math.max(1, Math.floor(Number(entry?.qty) || 0));
+      const qty = Math.min(
+        MAX_PER_PRODUCT,
+        Math.max(1, Math.floor(Number(entry?.qty) || 0))
+      );
       if (product && qty > 0) {
         items.push({
           slug: product.slug,
@@ -135,8 +138,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((prev) => {
       const found = prev.find((i) => i.slug === product.slug);
       if (found) {
+        // Cap the merged quantity — a customer may hold at most
+        // MAX_PER_PRODUCT units of any single product.
+        const capped = Math.min(found.qty + qty, MAX_PER_PRODUCT);
         return prev.map((i) =>
-          i.slug === product.slug ? { ...i, qty: i.qty + qty } : i
+          i.slug === product.slug ? { ...i, qty: capped } : i
         );
       }
       return [
@@ -148,7 +154,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           mrpNum: product.mrpNum,
           pricingTiers: product.pricingTiers,
           img: product.img,
-          qty,
+          qty: Math.min(qty, MAX_PER_PRODUCT),
         },
       ];
     });
@@ -156,9 +162,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = useCallback(
     (product: Product, qty = 1) => {
+      // Add silently — do NOT auto-open the cart drawer. The header cart
+      // count updates so the user sees the item landed.
       mergeAdd(product, qty);
-      setCheckoutOpen(false);
-      setCartOpen(true);
     },
     [mergeAdd]
   );
@@ -177,9 +183,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const setQty = useCallback((slug: string, qty: number) => {
+    // Clamp to the per-product ceiling; qty <= 0 removes the line below.
+    const next = Math.min(qty, MAX_PER_PRODUCT);
     setItems((prev) =>
       prev
-        .map((i) => (i.slug === slug ? { ...i, qty } : i))
+        .map((i) => (i.slug === slug ? { ...i, qty: next } : i))
         .filter((i) => i.qty > 0)
     );
   }, []);

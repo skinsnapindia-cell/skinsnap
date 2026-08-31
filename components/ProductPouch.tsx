@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { formatINR, formatUnitINR } from "@/lib/format";
-import { hasTiers, lineTotal, lineUnitPrice, lineRegularTotal, lineSavings } from "@/lib/pricing";
+import { hasTiers, lineTotal, lineUnitPrice, lineRegularTotal, lineSavings, MAX_PER_PRODUCT } from "@/lib/pricing";
 import type { Product } from "@/lib/products";
 
 /**
@@ -177,8 +177,31 @@ export default function ProductPouch({ product }: { product: Product }) {
               </div>
             )}
             {useTiers && maxSavings > 0 && (
-              <div style={{ fontSize: 11.5, color: "#8A6A2E", marginTop: 8, lineHeight: 1.5, fontWeight: 600 }}>
-                Buy more, save more — up to {formatINR(maxSavings)} off {topTier!.qty} packs
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  marginTop: 10,
+                  padding: "5px 11px",
+                  borderRadius: 999,
+                  background: "linear-gradient(90deg,#FBEEDA 0%,#F7E1CE 100%)",
+                  border: "1px solid #EBD3B4",
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                  letterSpacing: "0.01em",
+                  color: "#8A4B22",
+                  lineHeight: 1.3,
+                }}
+              >
+                <span aria-hidden="true" style={{ fontSize: 12 }}>🔥</span>
+                <span>
+                  Buy more, save more — up to{" "}
+                  <strong style={{ fontWeight: 800, color: "#B24A12" }}>
+                    {formatINR(maxSavings)} off
+                  </strong>{" "}
+                  on {topTier!.qty} packs
+                </span>
               </div>
             )}
           </div>
@@ -188,7 +211,15 @@ export default function ProductPouch({ product }: { product: Product }) {
             <div style={{ display: "flex", alignItems: "center", border: "1px solid #D7CCBB", borderRadius: 999, overflow: "hidden", flexShrink: 0 }}>
               <button aria-label="Decrease quantity" onClick={() => setQty((q) => Math.max(1, q - 1))} style={stepBtn}>−</button>
               <span style={{ minWidth: 24, textAlign: "center", fontWeight: 700, fontSize: 14 }}>{qty}</span>
-              <button aria-label="Increase quantity" onClick={() => setQty((q) => q + 1)} style={stepBtn}>+</button>
+              <button
+                aria-label="Increase quantity"
+                onClick={() => setQty((q) => Math.min(MAX_PER_PRODUCT, q + 1))}
+                disabled={qty >= MAX_PER_PRODUCT}
+                title={qty >= MAX_PER_PRODUCT ? `Limit ${MAX_PER_PRODUCT} per product` : undefined}
+                style={{ ...stepBtn, opacity: qty >= MAX_PER_PRODUCT ? 0.35 : 1, cursor: qty >= MAX_PER_PRODUCT ? "not-allowed" : "pointer" }}
+              >
+                +
+              </button>
             </div>
             <button
               onClick={handleAdd}

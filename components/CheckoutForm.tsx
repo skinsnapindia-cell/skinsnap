@@ -60,6 +60,7 @@ export default function CheckoutForm({
 }) {
   const router = useRouter();
   const { items, subtotal, clearCart, openCart } = useCart();
+  const formRef = useRef<HTMLFormElement>(null);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -71,6 +72,9 @@ export default function CheckoutForm({
   const [city, setCity] = useState("");
   const [stateRegion, setStateRegion] = useState("");
   const [payment, setPayment] = useState<"cod" | "prepaid">("prepaid");
+
+  // Two-step checkout: collect shipping details first, then payment.
+  const [step, setStep] = useState<"address" | "payment">("address");
 
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<Status>("form");
@@ -214,18 +218,33 @@ export default function CheckoutForm({
     clearError("street");
   };
 
-  const validate = (): boolean => {
+  const validate = (): Errors => {
     const e: Errors = {};
     if (name.trim().length < 5) e.name = "Enter your full name (at least 5 characters).";
     if (!emailRe.test(email.trim())) e.email = "Enter a valid email address.";
     if (phone.length !== 10) e.phone = "Enter a 10-digit mobile number.";
+    if (!isValidPincode(pincode)) e.pincode = "Enter a valid 6-digit PIN code.";
     if (flat.trim().length < 3) e.flat = "Flat / house no. & building is required.";
     if (street.trim().length < 3) e.street = "Street / area is required.";
-    if (!isValidPincode(pincode)) e.pincode = "Enter a valid 6-digit PIN code.";
     if (!city.trim()) e.city = "City is required.";
     if (!stateRegion.trim()) e.state = "Select a state.";
     setErrors(e);
-    return Object.keys(e).length === 0;
+    return e;
+  };
+
+  // Scroll to (and focus) the first field with an error, following the on-screen
+  // field order so the user lands on the topmost problem.
+  const scrollToFirstError = (e: Errors) => {
+    const order: (keyof Errors)[] = ["name", "email", "phone", "pincode", "flat", "street", "city", "state"];
+    const first = order.find((k) => e[k]);
+    if (!first) return;
+    // Defer so the error messages have rendered before we measure positions.
+    requestAnimationFrame(() => {
+      const wrap = formRef.current?.querySelector<HTMLElement>(`[data-field="${first}"]`);
+      if (!wrap) return;
+      wrap.scrollIntoView({ behavior: "smooth", block: "center" });
+      wrap.querySelector<HTMLElement>("input, select")?.focus({ preventScroll: true });
+    });
   };
 
   // Inject the Razorpay Checkout SDK once; resolves when window.Razorpay exists.
@@ -301,9 +320,40 @@ export default function CheckoutForm({
     clearCart();
   };
 
-  const submit = async (ev: React.FormEvent) => {
+  // Step 1 → Step 2: validate the shipping details, then reveal payment.
+  const proceedToPayment = () => {
+    const e = validate();
+    if (Object.keys(e).length > 0) {
+      // Stay on the shipping step and take the user to the first bad field.
+      scrollToFirstError(e);
+      return;
+    }
+    setStep("payment");
+    // Jump back to the top so the payment step is in view from the start.
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  // Form submit dispatches by step: advance from address → payment, or run
+  // the actual payment/order on the payment step.
+  const submit = (ev: React.FormEvent) => {
     ev.preventDefault();
-    if (!validate()) return;
+    if (step === "address") {
+      proceedToPayment();
+      return;
+    }
+    void runPayment();
+  };
+
+  const runPayment = async () => {
+    // Guard: if the address somehow became invalid, send the user back.
+    const e = validate();
+    if (Object.keys(e).length > 0) {
+      setStep("address");
+      scrollToFirstError(e);
+      return;
+    }
     setStatus("sending");
     setErrorMsg("");
 
@@ -540,28 +590,28 @@ export default function CheckoutForm({
 
   const contactAndAddress = (
     <>
-      <Field label="Full Name" error={errors.name}>
+      <Field label="Full Name" name="name" error={errors.name}>
         <input type="text" value={name} onChange={(e) => { setName(e.target.value); clearError("name"); }} placeholder="Your full name" style={inputStyle} />
       </Field>
       <div style={twoCol}>
-        <Field label="Email Address" error={errors.email}>
+        <Field label="Email Address" name="email" error={errors.email}>
           <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); clearError("email"); }} placeholder="you@email.com" style={inputStyle} />
         </Field>
-        <Field label="Phone" error={errors.phone}>
+        <Field label="Phone" name="phone" error={errors.phone}>
           <div style={{ display: "flex", border: `1px solid ${errors.phone ? "#D98A82" : "#E0D6C6"}`, borderRadius: 12, overflow: "hidden", background: "#F6F1E9" }}>
             <span style={{ display: "flex", alignItems: "center", gap: 5, padding: "0 11px", borderRight: "1px solid #E0D6C6", fontSize: 14, color: "#26221C", whiteSpace: "nowrap" }}>🇮🇳 +91</span>
             <input type="tel" inputMode="numeric" value={phone} onChange={(e) => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); clearError("phone"); }} placeholder="10-digit number" style={{ ...inputStyle, border: "none", background: "transparent", flex: 1, minWidth: 0 }} />
           </div>
         </Field>
       </div>
-      <Field label="Flat / House No. & Building" error={errors.flat}>
+      <Field label="PIN Code" name="pincode" error={errors.pincode} hint={pin.status === "loading" ? "Looking up…" : pin.status === "ok" ? `✓ ${pin.city}, ${pin.state}` : pin.status === "notfound" ? "PIN code not found — enter city & state manually." : undefined} hintColor={pin.status === "ok" ? "#5E7C4E" : "#9B8F7C"}>
+        <input type="text" inputMode="numeric" value={pincode} onChange={(e) => { setPincode(e.target.value.replace(/\D/g, "").slice(0, 6)); clearError("pincode"); }} placeholder="e.g. 380001" style={inputStyle} />
+      </Field>
+      <Field label="Flat / House No. & Building" name="flat" error={errors.flat}>
         <input type="text" value={flat} onChange={(e) => { setFlat(e.target.value); clearError("flat"); }} placeholder="e.g. B-402, Lotus Residency" style={inputStyle} />
       </Field>
-      <Field label="Street / Road / Colony" error={errors.street}>
+      <Field label="Street / Road / Colony" name="street" error={errors.street}>
         <AddressAutocomplete value={street} onChange={(v) => { setStreet(v); clearError("street"); }} onSelect={onAddressSelect} error={errors.street} />
-      </Field>
-      <Field label="PIN Code" error={errors.pincode} hint={pin.status === "loading" ? "Looking up…" : pin.status === "ok" ? `✓ ${pin.city}, ${pin.state}` : pin.status === "notfound" ? "PIN code not found — enter city & state manually." : undefined} hintColor={pin.status === "ok" ? "#5E7C4E" : "#9B8F7C"}>
-        <input type="text" inputMode="numeric" value={pincode} onChange={(e) => { setPincode(e.target.value.replace(/\D/g, "").slice(0, 6)); clearError("pincode"); }} placeholder="e.g. 380001" style={inputStyle} />
       </Field>
       {pin.status === "ok" && pin.areas.length > 0 && (
         <Field label="Area / Locality">
@@ -572,10 +622,10 @@ export default function CheckoutForm({
         </Field>
       )}
       <div style={twoCol}>
-        <Field label="City" error={errors.city}>
+        <Field label="City" name="city" error={errors.city}>
           <input type="text" value={city} onChange={(e) => { setCity(e.target.value); clearError("city"); }} placeholder="City" style={inputStyle} />
         </Field>
-        <Field label="State" error={errors.state}>
+        <Field label="State" name="state" error={errors.state}>
           <select value={stateRegion} onChange={(e) => { setStateRegion(e.target.value); clearError("state"); }} style={{ ...inputStyle, appearance: "auto", color: stateRegion ? "#26221C" : "#A99E8B" }}>
             <option value="">Select state</option>
             {INDIA_STATES.map((s) => (<option key={s} value={s} style={{ color: "#26221C" }}>{s}</option>))}
@@ -631,41 +681,93 @@ export default function CheckoutForm({
     </>
   );
 
+  // Step 1 CTA — validate shipping details, then move to the payment step.
+  const proceedBlock = (
+    <button
+      type="submit"
+      style={{ ...primaryBtn, marginTop: 20 }}
+      onMouseEnter={(e) => (e.currentTarget.style.background = "#A15E38")}
+      onMouseLeave={(e) => (e.currentTarget.style.background = "#26221C")}
+    >
+      Proceed to Pay · {formatINR(grandTotal)} →
+    </button>
+  );
+
+  const backToAddress = (
+    <button
+      type="button"
+      onClick={() => setStep("address")}
+      style={{ ...linkBtn, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 4 }}
+    >
+      ← Back to shipping details
+    </button>
+  );
+
+  // Compact 1 → 2 progress indicator shared by both variants.
+  const stepper = (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "10px 0 22px" }}>
+      <StepDot n={1} label="Shipping" active={step === "address"} done={step === "payment"} />
+      <div style={{ flex: 1, height: 2, background: step === "payment" ? "#A15E38" : "#E1D6C4", borderRadius: 2 }} />
+      <StepDot n={2} label="Payment" active={step === "payment"} done={false} />
+    </div>
+  );
+
+  const orderItemsPanel = (
+    <div style={panelStyle}>
+      <div style={panelTitle}>Order items · {count} {count === 1 ? "item" : "items"}</div>
+      {productList}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
+        <button type="button" onClick={openCart} style={linkBtn}>Edit cart</button>
+      </div>
+    </div>
+  );
+
+  const orderSummaryPanel = (
+    <div style={{ ...panelStyle, marginTop: 20 }}>
+      <div style={panelTitle}>Order summary</div>
+      {pricing}
+    </div>
+  );
+
   return (
-    <form onSubmit={submit} noValidate>
+    <form ref={formRef} onSubmit={submit} noValidate>
       <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.24em", textTransform: "uppercase", color: "#A15E38" }}>
         Checkout
       </div>
-      <h3 style={{ ...h3Style, textAlign: "left", fontSize: isPage ? 34 : 28, margin: "10px 0 24px" }}>
-        Complete your order
+      <h3 style={{ ...h3Style, textAlign: "left", fontSize: isPage ? 34 : 28, margin: "10px 0 6px" }}>
+        {step === "address" ? "Shipping details" : "Payment method"}
       </h3>
 
       {isPage ? (
-        <div className="order-grid">
-          <div>
-            <div style={panelStyle}>
-              <div style={panelTitle}>Your order · {count} {count === 1 ? "item" : "items"}</div>
-              {productList}
-              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
-                <button type="button" onClick={openCart} style={linkBtn}>Edit cart</button>
-              </div>
-            </div>
-            <div style={{ ...panelStyle, marginTop: 24 }}>
-              <div style={panelTitle}>Shipping details</div>
-              {contactAndAddress}
+        <>
+          {stepper}
+          <div className="order-grid order-grid--summary-left">
+            {/* LEFT — order items + summary, sticky */}
+            <aside className="order-summary-rail">
+              {orderItemsPanel}
+              {orderSummaryPanel}
+            </aside>
+            {/* RIGHT — step content */}
+            <div>
+              {step === "address" ? (
+                <div style={panelStyle}>
+                  <div style={panelTitle}>Shipping details</div>
+                  {contactAndAddress}
+                  {proceedBlock}
+                </div>
+              ) : (
+                <div style={panelStyle}>
+                  {backToAddress}
+                  {paymentBlock}
+                  {submitBlock}
+                </div>
+              )}
             </div>
           </div>
-          <aside className="order-summary-rail">
-            <div style={panelStyle}>
-              <div style={panelTitle}>Order summary</div>
-              {pricing}
-            </div>
-            <div style={{ ...panelStyle, marginTop: 20 }}>{paymentBlock}</div>
-            <div style={{ marginTop: 20 }}>{submitBlock}</div>
-          </aside>
-        </div>
+        </>
       ) : (
         <>
+          {stepper}
           <div style={{ background: "#F3ECDF", borderRadius: 16, padding: "6px 16px 16px", marginBottom: 8 }}>
             {productList}
             <div style={{ marginTop: 12 }}>{pricing}</div>
@@ -673,30 +775,70 @@ export default function CheckoutForm({
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 14 }}>
             <button type="button" onClick={openCart} style={linkBtn}>Edit cart</button>
           </div>
-          {contactAndAddress}
-          <div style={{ marginTop: 20 }}>{paymentBlock}</div>
-          {submitBlock}
+          {step === "address" ? (
+            <>
+              {contactAndAddress}
+              {proceedBlock}
+            </>
+          ) : (
+            <>
+              {backToAddress}
+              <div style={{ marginTop: 12 }}>{paymentBlock}</div>
+              {submitBlock}
+            </>
+          )}
         </>
       )}
     </form>
   );
 }
 
+// Small numbered step indicator used by the checkout stepper.
+function StepDot({ n, label, active, done }: { n: number; label: string; active: boolean; done: boolean }) {
+  const on = active || done;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span
+        style={{
+          width: 24,
+          height: 24,
+          borderRadius: "50%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 12,
+          fontWeight: 800,
+          color: on ? "#F6F1E9" : "#9B8F7C",
+          background: on ? "#A15E38" : "#EAE0D0",
+          flexShrink: 0,
+        }}
+      >
+        {done ? "✓" : n}
+      </span>
+      <span style={{ fontSize: 12.5, fontWeight: 700, letterSpacing: "0.02em", color: active ? "#26221C" : "#9B8F7C" }}>
+        {label}
+      </span>
+    </div>
+  );
+}
+
 function Field({
   label,
+  name,
   error,
   hint,
   hintColor = "#9B8F7C",
   children,
 }: {
   label: string;
+  name?: string;
   error?: string;
   hint?: string;
   hintColor?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ marginTop: 16 }}>
+    <div style={{ marginTop: 16 }} data-field={name}>
       <label style={labelStyle}>{label}</label>
       {children}
       {error ? (
