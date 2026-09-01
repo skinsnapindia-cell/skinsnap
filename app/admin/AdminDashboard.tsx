@@ -68,7 +68,13 @@ export default function AdminDashboard() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const load = async () => {
-    const res = await fetch("/api/admin/orders", { credentials: "same-origin", cache: "no-store" });
+    // Cache-busting query param defeats any browser/CDN cache so a reload
+    // always pulls the latest order statuses from the database.
+    const res = await fetch(`/api/admin/orders?t=${Date.now()}`, {
+      credentials: "same-origin",
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache" },
+    });
     if (res.status === 401) {
       setPhase("login");
       return;

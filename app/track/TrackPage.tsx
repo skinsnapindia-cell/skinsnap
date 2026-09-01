@@ -49,7 +49,7 @@ export default function TrackPage() {
     setError("");
     setOrder(null);
     try {
-      const res = await fetch(`/api/track/${encodeURIComponent(q)}`, { cache: "no-store" });
+      const res = await fetch(`/api/track/${encodeURIComponent(q)}?t=${Date.now()}`, { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error || "Could not find that order.");
