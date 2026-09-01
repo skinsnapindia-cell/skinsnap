@@ -13,8 +13,8 @@ create table if not exists public.orders (
   order_number text unique not null,
   created_at timestamptz not null default now(),
 
-  -- pre_order -> confirmed -> shipped -> delivered | cancelled
-  status text not null default 'pre_order',
+  -- placed -> confirmed -> shipped -> out_for_delivery -> delivered | cancelled
+  status text not null default 'placed',
 
   -- customer
   customer_name text not null,

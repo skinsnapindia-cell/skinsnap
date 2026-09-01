@@ -5,12 +5,13 @@ import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { lockScroll, unlockScroll } from "@/lib/lenisControl";
 
-type Active = "home" | "products" | "how" | "blog" | "contact";
+type Active = "home" | "products" | "how" | "blog" | "contact" | "track";
 
 const links: { label: string; href: string; key: Active }[] = [
   { label: "Home", href: "/", key: "home" },
   { label: "Products", href: "/products", key: "products" },
   { label: "How It Works", href: "/how-it-works", key: "how" },
+  { label: "Track Order", href: "/track", key: "track" },
   { label: "Blog", href: "/blog", key: "blog" },
   { label: "Contact", href: "/contact", key: "contact" },
 ];

@@ -187,7 +187,7 @@ export async function POST(req: Request) {
     total: serverTotalNum,
     paymentMethod: payment || "Cash on Delivery",
     shippingCourier: shippingCourier ?? null,
-    status: isPrepaid ? "paid" : "pre_order",
+    status: "placed",
     paymentId: isPrepaid ? razorpay?.paymentId ?? null : null,
     paymentStatus: isPrepaid ? "paid" : "cod",
   });
